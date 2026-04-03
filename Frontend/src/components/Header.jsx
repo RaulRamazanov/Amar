@@ -1,13 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SearchDropdown from './SearchDropdown';
+import { products } from '../data/products';
 import '../App.css';
 
 const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
   const navigate = useNavigate();
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate('/catalog');
+    const query = searchQuery || localSearchQuery;
+    if (query.trim()) {
+      navigate(`/catalog?search=${encodeURIComponent(query)}`);
+      setSearchQuery('');
+      setLocalSearchQuery('');
+      setIsSearchFocused(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setLocalSearchQuery(value);
+    setSearchQuery(value);
+  };
+
+  const handleInputFocus = () => {
+    setIsSearchFocused(true);
+  };
+
+  const handleCloseDropdown = () => {
+    setIsSearchFocused(false);
   };
 
   return (
@@ -18,16 +42,30 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
           <span className="logo-text">MeatMarket</span>
         </Link>
 
-        <form onSubmit={handleSearch} className="search-form">
-          <input
-            type="text"
-            placeholder="Поиск мяса, стейков..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+        <div className="search-wrapper">
+          <form onSubmit={handleSearch} className="search-form">
+            <input
+              type="text"
+              placeholder="Поиск мяса, стейков..."
+              value={searchQuery || localSearchQuery}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              className="search-input"
+            />
+            <button type="submit" className="search-btn">🔍</button>
+          </form>
+          
+          <SearchDropdown 
+            searchQuery={searchQuery || localSearchQuery}
+            setSearchQuery={(value) => {
+              setLocalSearchQuery(value);
+              setSearchQuery(value);
+            }}
+            products={products}
+            isInputFocused={isSearchFocused}
+            onClose={handleCloseDropdown}
           />
-          <button type="submit" className="search-btn">🔍</button>
-        </form>
+        </div>
 
         <div className="header-actions">
           <Link to="/catalog" className="icon-btn">📋</Link>
