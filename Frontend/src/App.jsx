@@ -47,6 +47,10 @@ function App() {
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  const handleSearchClear = () => {
+    setSearchQuery('');
+  };
+
   return (
     <Router>
       <div className="App">
@@ -62,7 +66,8 @@ function App() {
             <Route path="/catalog" element={
               <CatalogPage 
                 searchQuery={searchQuery} 
-                addToCart={addToCart} 
+                addToCart={addToCart}
+                onSearchClear={handleSearchClear}
               />
             } />
             <Route path="/product/:id" element={

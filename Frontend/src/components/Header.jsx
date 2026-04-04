@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchDropdown from './SearchDropdown';
+import AuthModal from './AuthModal';
 import { products } from '../data/products';
 import '../App.css';
 
@@ -8,14 +9,17 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
   const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
 
   const handleSearch = (e) => {
     e.preventDefault();
     const query = searchQuery || localSearchQuery;
     if (query.trim()) {
       navigate(`/catalog?search=${encodeURIComponent(query)}`);
-      setSearchQuery('');
-      setLocalSearchQuery('');
+      setSearchQuery(query);
+      setLocalSearchQuery(query);
       setIsSearchFocused(false);
     }
   };
@@ -34,48 +38,101 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
     setIsSearchFocused(false);
   };
 
+  const handleClearSearch = () => {
+    setLocalSearchQuery('');
+    setSearchQuery('');
+    setIsSearchFocused(false);
+    
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('search')) {
+      url.searchParams.delete('search');
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserName('');
+    alert('Вы вышли из аккаунта');
+  };
+
   return (
-    <header className="header">
-      <div className="header-container">
-        <Link to="/" className="logo">
-          <span className="logo-icon">🥩</span>
-          <span className="logo-text">MeatMarket</span>
-        </Link>
+    <>
+      <header className="header">
+        <div className="header-container">
+          <Link to="/" className="logo">
+            <span className="logo-icon">🥩</span>
+            <span className="logo-text">MeatMarket</span>
+          </Link>
 
-        <div className="search-wrapper">
-          <form onSubmit={handleSearch} className="search-form">
-            <input
-              type="text"
-              placeholder="Поиск мяса, стейков..."
-              value={searchQuery || localSearchQuery}
-              onChange={handleInputChange}
-              onFocus={handleInputFocus}
-              className="search-input"
+          <div className="search-wrapper">
+            <form onSubmit={handleSearch} className="search-form">
+                <input
+                  type="text"
+                  placeholder="Поиск мяса, стейков..."
+                  value={searchQuery || localSearchQuery}
+                  onChange={handleInputChange}
+                  onFocus={handleInputFocus}
+                  className="search-input"
+                />
+                {(searchQuery || localSearchQuery) && (
+                  <button 
+                    type="button" 
+                    className="clear-search-btn"
+                    onClick={handleClearSearch}
+                  >
+                    ✕
+                  </button>
+                )}
+            </form>
+            
+            <SearchDropdown 
+              searchQuery={searchQuery || localSearchQuery}
+              setSearchQuery={(value) => {
+                setLocalSearchQuery(value);
+                setSearchQuery(value);
+              }}
+              products={products}
+              isInputFocused={isSearchFocused}
+              onClose={handleCloseDropdown}
             />
-            <button type="submit" className="search-btn">🔍</button>
-          </form>
-          
-          <SearchDropdown 
-            searchQuery={searchQuery || localSearchQuery}
-            setSearchQuery={(value) => {
-              setLocalSearchQuery(value);
-              setSearchQuery(value);
-            }}
-            products={products}
-            isInputFocused={isSearchFocused}
-            onClose={handleCloseDropdown}
-          />
-        </div>
+          </div>
 
-        <div className="header-actions">
-          <Link to="/catalog" className="icon-btn">📋</Link>
-          <div className="cart-icon" onClick={onCartOpen}>
-            🛒
-            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+          <div className="header-actions">
+            {/* Кнопка авторизации вместо каталога */}
+            {isLoggedIn ? (
+              <div className="user-menu">
+                <button className="user-btn">
+                  👤 {userName}
+                </button>
+                <div className="user-dropdown">
+                  <button onClick={handleLogout} className="logout-btn">
+                    🚪 Выйти
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button 
+                className="icon-btn auth-btn"
+                onClick={() => setIsAuthModalOpen(true)}
+              >
+                👤
+              </button>
+            )}
+            
+            <div className="cart-icon" onClick={onCartOpen}>
+              🛒
+              {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Модальное окно авторизации */}
+      {isAuthModalOpen && (
+        <AuthModal onClose={() => setIsAuthModalOpen(false)} />
+      )}
+    </>
   );
 };
 

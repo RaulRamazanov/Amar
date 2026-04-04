@@ -4,7 +4,7 @@ import { products, categories } from '../data/products';
 import ProductCard from '../components/ProductCard';
 import '../App.css';
 
-const CatalogPage = ({ searchQuery = '', addToCart }) => {
+const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [filteredProducts, setFilteredProducts] = useState(products);
@@ -30,6 +30,13 @@ const CatalogPage = ({ searchQuery = '', addToCart }) => {
       setCurrentSearchQuery('');
     }
   }, [location.search, searchQuery]);
+
+  // Синхронизация с searchQuery из пропсов
+  useEffect(() => {
+    if (searchQuery !== currentSearchQuery) {
+      setCurrentSearchQuery(searchQuery);
+    }
+  }, [searchQuery]);
 
   // Фильтрация товаров при изменении категории или поискового запроса
   useEffect(() => {
@@ -67,8 +74,24 @@ const CatalogPage = ({ searchQuery = '', addToCart }) => {
   // Обработчик очистки поиска
   const handleClearSearch = () => {
     setCurrentSearchQuery('');
+    if (onSearchClear) {
+      onSearchClear();
+    }
     const params = new URLSearchParams(location.search);
     params.delete('search');
+    window.history.pushState({}, '', `${location.pathname}?${params.toString()}`);
+  };
+
+  // Обработчик изменения поиска на странице каталога
+  const handleCatalogSearchChange = (e) => {
+    const value = e.target.value;
+    setCurrentSearchQuery(value);
+    const params = new URLSearchParams(location.search);
+    if (value.trim()) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
     window.history.pushState({}, '', `${location.pathname}?${params.toString()}`);
   };
 
@@ -76,22 +99,22 @@ const CatalogPage = ({ searchQuery = '', addToCart }) => {
     <div className="catalog-page">
       <h1 className="catalog-title">Каталог товаров</h1>
       
-      {/* Поиск на странице каталога (опционально) */}
+      {/* Поиск на странице каталога */}
       <div className="catalog-search-section">
         <div className="catalog-search-wrapper">
           <input
             type="text"
             placeholder="Поиск по каталогу..."
             value={currentSearchQuery}
-            onChange={(e) => setCurrentSearchQuery(e.target.value)}
+            onChange={handleCatalogSearchChange}
             className="catalog-search-input"
           />
           {currentSearchQuery && (
-            <button className="clear-search-btn" onClick={handleClearSearch}>
+            <button className="clear-catalog-search-btn" onClick={handleClearSearch}>
               ✕
             </button>
           )}
-          <button className="catalog-search-btn">🔍</button>
+          {/* <button className="catalog-search-btn">🔍</button> */}
         </div>
       </div>
       
