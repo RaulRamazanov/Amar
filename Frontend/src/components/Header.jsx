@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchDropdown from './SearchDropdown';
-import AuthModal from './AuthModal';
 import { products } from '../data/products';
 import '../App.css';
 
@@ -100,26 +99,6 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
 
           <div className="header-actions">
             {/* Кнопка авторизации вместо каталога */}
-            {isLoggedIn ? (
-              <div className="user-menu">
-                <button className="user-btn">
-                  👤 {userName}
-                </button>
-                <div className="user-dropdown">
-                  <button onClick={handleLogout} className="logout-btn">
-                    🚪 Выйти
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button 
-                className="icon-btn auth-btn"
-                onClick={() => setIsAuthModalOpen(true)}
-              >
-                👤
-              </button>
-            )}
-            
             <div className="cart-icon" onClick={onCartOpen}>
               🛒
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
