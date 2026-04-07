@@ -1,13 +1,13 @@
+import uuid
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import json
 
 db = SQLAlchemy()
 
 class Product(db.Model):
     __tablename__ = 'products'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Добавьте autoincrement=True
+    # Оставляем INTEGER для товаров (проще для админа)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
@@ -16,7 +16,6 @@ class Product(db.Model):
     nutrition = db.Column(db.JSON)
     ingredients = db.Column(db.String(500))
     in_stock = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
         return {
@@ -34,15 +33,16 @@ class Product(db.Model):
 class Order(db.Model):
     __tablename__ = 'orders'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     customer_name = db.Column(db.String(100), nullable=False)
     customer_phone = db.Column(db.String(20), nullable=False)
     customer_address = db.Column(db.Text, nullable=False)
+    comment = db.Column(db.Text)
     total_amount = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(50), default='pending')  # pending, confirmed, delivered, cancelled
+    status = db.Column(db.String(50), default='pending')
     order_date = db.Column(db.DateTime, default=datetime.utcnow)
+    session_id = db.Column(db.String(36), default=lambda: str(uuid.uuid4()))  # UUID для сессии
 
-    # Связь с товарами в заказе
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
 
     def to_dict(self):
@@ -51,6 +51,7 @@ class Order(db.Model):
             'customer_name': self.customer_name,
             'customer_phone': self.customer_phone,
             'customer_address': self.customer_address,
+            'comment': self.comment,
             'total_amount': self.total_amount,
             'status': self.status,
             'order_date': self.order_date.isoformat(),
@@ -60,14 +61,14 @@ class Order(db.Model):
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
 
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # Тоже UUID
+    order_id = db.Column(db.String(36), db.ForeignKey('orders.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     product_name = db.Column(db.String(200), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    price_at_time = db.Column(db.Float, nullable=False)  # Цена на момент заказа
+    quantity = db.Column(db.Float, nullable=False)
+    price_at_time = db.Column(db.Float, nullable=False)
+    comment = db.Column(db.Text)
 
-    # Связь с продуктом
     product = db.relationship('Product')
 
     def to_dict(self):
@@ -76,25 +77,7 @@ class OrderItem(db.Model):
             'product_id': self.product_id,
             'product_name': self.product_name,
             'quantity': self.quantity,
-            'price': self.price_at_time
+            'price': self.price_at_time,
+            'total': self.price_at_time * self.quantity,
+            'comment': self.comment
         }
-
-class Cart(db.Model):
-    __tablename__ = 'carts'
-
-    id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.String(100), unique=True, nullable=False)  # Для гостей
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    items = db.relationship('CartItem', backref='cart', lazy=True, cascade='all, delete-orphan')
-
-class CartItem(db.Model):
-    __tablename__ = 'cart_items'
-
-    id = db.Column(db.Integer, primary_key=True)
-    cart_id = db.Column(db.Integer, db.ForeignKey('carts.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
-
-    product = db.relationship('Product')

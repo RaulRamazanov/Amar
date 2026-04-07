@@ -9,16 +9,10 @@ def get_products():
     Получить список всех товаров
     ---
     tags:
-      - Товары
-    parameters:
-      - name: category
-        in: query
-        type: string
-        required: false
-        description: Фильтр по категории
+      - Products
     responses:
       200:
-        description: Список товаров успешно получен
+        description: Список товаров
     """
     category = request.args.get('category')
     query = Product.query
@@ -29,13 +23,34 @@ def get_products():
     products = query.all()
     return jsonify([p.to_dict() for p in products])
 
+@products_bp.route('/products/<int:product_id>', methods=['GET'])
+def get_product(product_id):
+    """
+    Получить товар по ID
+    ---
+    tags:
+      - Products
+    parameters:
+      - name: product_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Товар найден
+      404:
+        description: Товар не найден
+    """
+    product = Product.query.get_or_404(product_id)
+    return jsonify(product.to_dict())
+
 @products_bp.route('/products', methods=['POST'])
 def create_product():
     """
-    Создать новый товар (для админки)
+    Создать новый товар
     ---
     tags:
-      - Админка
+      - Admin
     parameters:
       - name: body
         in: body
@@ -59,28 +74,24 @@ def create_product():
               type: string
             ingredients:
               type: string
-            in_stock:
-              type: boolean
             nutrition:
               type: object
+            in_stock:
+              type: boolean
     responses:
       201:
         description: Товар создан
-      400:
-        description: Ошибка валидации
     """
     data = request.json
 
-    # Валидация обязательных полей
     required_fields = ['name', 'price', 'category']
     for field in required_fields:
         if not data.get(field):
             return jsonify({'error': f'Поле {field} обязательно'}), 400
 
-    # Создаём новый товар (НЕ указываем id, он сгенерируется автоматически)
     product = Product(
         name=data['name'],
-        price=float(data['price']),  # Преобразуем в число
+        price=float(data['price']),
         category=data['category'],
         image=data.get('image', ''),
         description=data.get('description', ''),
@@ -89,46 +100,21 @@ def create_product():
         in_stock=data.get('in_stock', True)
     )
 
-    try:
-        db.session.add(product)
-        db.session.commit()
+    db.session.add(product)
+    db.session.commit()
 
-        return jsonify({
-            'message': 'Товар успешно создан',
-            'product': product.to_dict()
-        }), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': f'Ошибка при создании товара: {str(e)}'}), 500
-
-@products_bp.route('/products/<int:product_id>', methods=['GET'])
-def get_product(product_id):
-    """
-    Получить конкретный товар по ID
-    ---
-    tags:
-      - Товары
-    parameters:
-      - name: product_id
-        in: path
-        type: integer
-        required: true
-    responses:
-      200:
-        description: Товар найден
-      404:
-        description: Товар не найден
-    """
-    product = Product.query.get_or_404(product_id)
-    return jsonify(product.to_dict())
+    return jsonify({
+        'message': 'Товар успешно создан',
+        'product': product.to_dict()
+    }), 201
 
 @products_bp.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     """
-    Обновить товар (для админки)
+    Обновить товар
     ---
     tags:
-      - Админка
+      - Admin
     parameters:
       - name: product_id
         in: path
@@ -150,22 +136,19 @@ def update_product(product_id):
               type: string
             description:
               type: string
-            nutrition:
-              type: object
             ingredients:
               type: string
+            nutrition:
+              type: object
             in_stock:
               type: boolean
     responses:
       200:
-        description: Товар обновлён
-      404:
-        description: Товар не найден
+        description: Товар обновлен
     """
     product = Product.query.get_or_404(product_id)
     data = request.json
 
-    # Обновляем только переданные поля
     if 'name' in data:
         product.name = data['name']
     if 'price' in data:
@@ -186,17 +169,17 @@ def update_product(product_id):
     db.session.commit()
 
     return jsonify({
-        'message': 'Товар успешно обновлён',
+        'message': 'Товар успешно обновлен',
         'product': product.to_dict()
     })
 
 @products_bp.route('/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     """
-    Удалить товар (для админки)
+    Удалить товар
     ---
     tags:
-      - Админка
+      - Admin
     parameters:
       - name: product_id
         in: path
@@ -204,23 +187,25 @@ def delete_product(product_id):
         required: true
     responses:
       200:
-        description: Товар удалён
-      404:
-        description: Товар не найден
+        description: Товар удален
     """
     product = Product.query.get_or_404(product_id)
+
+    if product.order_items:
+        return jsonify({'error': 'Нельзя удалить товар, который есть в заказах'}), 400
+
     db.session.delete(product)
     db.session.commit()
 
-    return jsonify({'message': 'Товар успешно удалён'})
+    return jsonify({'message': 'Товар успешно удален'})
 
 @products_bp.route('/categories', methods=['GET'])
 def get_categories():
     """
-    Получить список всех категорий
+    Получить все категории
     ---
     tags:
-      - Товары
+      - Products
     responses:
       200:
         description: Список категорий

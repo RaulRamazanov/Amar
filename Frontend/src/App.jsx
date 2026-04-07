@@ -15,16 +15,25 @@ function App() {
 
   const addToCart = (product) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      // Проверяем, есть ли уже такой товар с таким же комментарием
+      const existingItem = prevItems.find(item => 
+        item.id === product.id && item.comment === (product.comment || '')
+      );
+      
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+          item.id === product.id && item.comment === (product.comment || '')
+            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
             : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { 
+        ...product, 
+        quantity: product.quantity || 1,
+        comment: product.comment || ''
+      }];
     });
+    setIsCartOpen(true)
   };
 
   const updateQuantity = (productId, newQuantity) => {
@@ -45,7 +54,21 @@ function App() {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
   };
 
+  const updateComment = (productId, newComment) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === productId
+          ? { ...item, comment: newComment }
+          : item
+      )
+    );
+  };
+
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+  };
 
   return (
     <Router>
@@ -62,7 +85,8 @@ function App() {
             <Route path="/catalog" element={
               <CatalogPage 
                 searchQuery={searchQuery} 
-                addToCart={addToCart} 
+                addToCart={addToCart}
+                onSearchClear={handleSearchClear}
               />
             } />
             <Route path="/product/:id" element={
@@ -77,6 +101,7 @@ function App() {
             cartItems={cartItems}
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}
+            updateComment={updateComment}
             onClose={() => setIsCartOpen(false)}
           />
         )}

@@ -26,7 +26,7 @@ const ProductCard = ({ product, addToCart }) => {
         <h3 className="product-title">{product.name}</h3>
         <div className="product-price">{product.price} ₽</div>
         <button className="add-to-cart-btn" onClick={handleAddToCart}>
-          🛒 В корзину
+          В корзину
         </button>
       </div>
     </div>
