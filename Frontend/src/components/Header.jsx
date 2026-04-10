@@ -5,10 +5,11 @@ import { products } from '../data/products';
 import cartIcon from '../assets/cart.svg'; // импортируем SVG иконку корзины
 import '../App.css';
 
-export const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
+const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
   const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // Добавлено состояние для модального окна
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -54,7 +55,7 @@ export const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) =
           <span className="logo-icon">🥩</span>
           <span className="logo-text">MeatMarket</span>
         </Link>
-
+        
         <div className="search-wrapper">
           <form onSubmit={handleSearch} className="search-form">
               <input
@@ -74,6 +75,7 @@ export const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) =
                   ✕
                 </button>
               )}
+            {/* <button type="submit" className="search-btn">🔍</button> */}
           </form>
           
           <SearchDropdown 
@@ -95,12 +97,14 @@ export const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) =
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Модальное окно авторизации */}
       {isAuthModalOpen && (
         <AuthModal onClose={() => setIsAuthModalOpen(false)} />
       )}
-    </>
+    </header>
   );
 };
+
+export default Header;

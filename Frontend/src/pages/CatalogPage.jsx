@@ -92,26 +92,6 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
     <div className="catalog-page">
       <h1 className="catalog-title">Каталог товаров</h1>
       
-      {/* Поиск на странице каталога */}
-      <div className="catalog-search-section">
-        <div className="catalog-search-wrapper">
-          <input
-            type="text"
-            placeholder="Поиск по каталогу..."
-            value={currentSearchQuery}
-            onChange={handleCatalogSearchChange}
-            className="catalog-search-input"
-          />
-          {currentSearchQuery && (
-            <button className="clear-catalog-search-btn" onClick={handleClearSearch}>
-              ✕
-            </button>
-          )}
-          {/* <button className="catalog-search-btn">🔍</button> */}
-        </div>
-      </div>
-      
-      {/* Табы категорий */}
       <div className="category-tabs">
         <button
           className={`tab-btn ${activeCategory === 'all' ? 'active' : ''}`}
