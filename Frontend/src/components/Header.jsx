@@ -95,7 +95,12 @@ export const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) =
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Модальное окно авторизации */}
+      {isAuthModalOpen && (
+        <AuthModal onClose={() => setIsAuthModalOpen(false)} />
+      )}
+    </>
   );
 };
