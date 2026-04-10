@@ -3,11 +3,25 @@ from app.config import Config
 from app.models.models import db
 from app.routes import register_routes
 from flasgger import Swagger
+from flask_cors import CORS
 import time
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    CORS(app, 
+        origins=[
+            "http://localhost:5173",      # React dev
+            "http://localhost:5174",      # Vue dev
+            "http://127.0.0.1:3000",
+            "http://localhost:8080",      # Если используете другой порт
+            "https://yourdomain.com"      # Продакшен домен
+        ],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
+        supports_credentials=True,        # Если используете сессии/куки
+        max_age=3600)
 
     db.init_app(app)
     app.secret_key = Config.SECRET_KEY
