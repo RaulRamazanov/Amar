@@ -11,22 +11,26 @@ const ProductPage = ({ addToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
   const [similarProducts, setSimilarProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const foundProduct = products.find(p => p.id === parseInt(id));
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setQuantity(1);
-      setComment('');
+    loadProduct();
+  }, [id]);
 
-      const similar = products
-        .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
-        .slice(0, 4);
-      setSimilarProducts(similar);
+  const loadProduct = async () => {
+    setLoading(true);
+    const data = await fetchProductById(id);
+    if (data) {
+      setProduct(data);
+      // Загружаем похожие товары из той же категории
+      const similar = await fetchProducts(data.category);
+      const filteredSimilar = similar.filter(p => p.id !== data.id).slice(0, 4);
+      setSimilarProducts(filteredSimilar);
     } else {
       navigate('/catalog');
     }
-  }, [id, navigate]);
+    setLoading(false);
+  };
 
   const handleQuantityChange = (delta) => {
     const newQuantity = quantity + delta;
@@ -50,6 +54,9 @@ const ProductPage = ({ addToCart }) => {
     setComment('');
     setQuantity(1);
   };
+    if (loading) {
+    return <div className="loading-spinner">Загрузка...</div>;
+  }
 
   // Функция для добавления комментария из примера
   const addExampleComment = (exampleText) => {

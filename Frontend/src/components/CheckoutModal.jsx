@@ -1,4 +1,6 @@
+// src/components/CheckoutModal.jsx
 import React, { useState } from 'react';
+import { createOrder } from '../services/api';
 import '../App.css';
 
 const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
@@ -9,6 +11,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
     comment: ''
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,7 +19,6 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
       ...prev,
       [name]: value
     }));
-    // Очищаем ошибку при вводе
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -43,25 +45,42 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
-    // Логика оформления заказа
-    const order = {
-      customer: formData,
-      items: cartItems,
-      total: totalPrice,
-      date: new Date().toISOString()
+    setIsSubmitting(true);
+    
+    // Подготавливаем данные для отправки
+    const orderData = {
+      customer: {
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        comment: formData.comment
+      },
+      items: cartItems.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        comment: item.comment || ''
+      })),
+      total: totalPrice
     };
     
-    console.log('Заказ:', order);
-    
-    // Здесь будет запрос к бэкенду
-    alert(`✅ Заказ оформлен!\n\nСпасибо, ${formData.name}!\n📦 Доставка по адресу: ${formData.address}\n📞 Наш менеджер свяжется с вами в ближайшее время.`);
-    
-    onClose(true); // true означает успешное оформление
+    try {
+      const result = await createOrder(orderData);
+      
+      // Показываем сообщение об успехе
+      alert(`✅ Заказ №${result.order_id || 'успешно'} оформлен!\n\nСпасибо, ${formData.name}!\nДоставка по адресу: ${formData.address}\nНаш менеджер свяжется с вами в ближайшее время.`);
+      
+      onClose(true); // Закрываем модальное окно и очищаем корзину
+    } catch (error) {
+      // Показываем сообщение об ошибке
+      alert(`❌ Ошибка при оформлении заказа: ${error.message}\n\nПопробуйте позже или свяжитесь с нами по телефону.`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -70,7 +89,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
         <button className="checkout-close" onClick={() => onClose(false)}>×</button>
         
         <div className="checkout-header">
-          {/* <div className="checkout-icon">📦</div> */}
+          <div className="checkout-icon">📦</div>
           <h2>Оформление заказа</h2>
           <p className="checkout-subtitle">Заполните форму для оформления заказа</p>
         </div>
@@ -81,7 +100,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
             <input
               type="text"
               name="name"
-              placeholder="Иван Иванов"
+              placeholder="Иван Петров"
               value={formData.name}
               onChange={handleChange}
               className={errors.name ? 'error' : ''}
@@ -94,7 +113,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
             <input
               type="tel"
               name="phone"
-              placeholder="+7 (999) 123-45-67"
+              placeholder="+7 999 123-45-67"
               value={formData.phone}
               onChange={handleChange}
               className={errors.phone ? 'error' : ''}
@@ -107,7 +126,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
             <input
               type="text"
               name="address"
-              placeholder="Город, улица, дом, квартира"
+              placeholder="ул. Ленина, д. 10"
               value={formData.address}
               onChange={handleChange}
               className={errors.address ? 'error' : ''}
@@ -119,7 +138,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
             <label>Комментарий к заказу</label>
             <textarea
               name="comment"
-              placeholder="Пожелания по доставке, особые предпочтения..."
+              placeholder="Позвонить перед доставкой, домофон 123..."
               value={formData.comment}
               onChange={handleChange}
               rows="3"
@@ -147,8 +166,12 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
             </div>
           </div>
 
-          <button type="submit" className="checkout-submit">
-            Подтвердить заказ
+          <button 
+            type="submit" 
+            className="checkout-submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Оформление...' : 'Подтвердить заказ'}
           </button>
         </form>
       </div>
