@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
+import cartIcon from '../assets/cart.svg';
 
 const ProductCard = ({ product, addToCart }) => {
   const navigate = useNavigate();
@@ -24,9 +25,9 @@ const ProductCard = ({ product, addToCart }) => {
       </div>
       <div className="product-info">
         <h3 className="product-title">{product.name}</h3>
-        <div className="product-price">{product.price} ₽</div>
+        <div className="product-price">{product.price}</div>
         <button className="add-to-cart-btn" onClick={handleAddToCart}>
-          В корзину
+          <img src={cartIcon} alt="Корзина" className="tab-icon-svg" style={{filter: "brightness(0) invert(1)"}} /> В корзину
         </button>
       </div>
     </div>

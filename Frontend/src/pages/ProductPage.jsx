@@ -11,22 +11,26 @@ const ProductPage = ({ addToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
   const [similarProducts, setSimilarProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const foundProduct = products.find(p => p.id === parseInt(id));
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setQuantity(1);
-      setComment('');
-      
-      const similar = products
-        .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
-        .slice(0, 4);
-      setSimilarProducts(similar);
+    loadProduct();
+  }, [id]);
+
+  const loadProduct = async () => {
+    setLoading(true);
+    const data = await fetchProductById(id);
+    if (data) {
+      setProduct(data);
+      // Загружаем похожие товары из той же категории
+      const similar = await fetchProducts(data.category);
+      const filteredSimilar = similar.filter(p => p.id !== data.id).slice(0, 4);
+      setSimilarProducts(filteredSimilar);
     } else {
       navigate('/catalog');
     }
-  }, [id, navigate]);
+    setLoading(false);
+  };
 
   const handleQuantityChange = (delta) => {
     const newQuantity = quantity + delta;
@@ -41,15 +45,18 @@ const ProductPage = ({ addToCart }) => {
       quantity: quantity,
       comment: comment.trim() || ''
     };
-    
+
     for (let i = 0; i < quantity; i++) {
       addToCart(productWithComment);
     }
-    
+
     alert(`✅ Добавлено ${quantity} шт. товара "${product.name}" в корзину!\n${comment ? `\n📝 Комментарий: ${comment}` : ''}`);
     setComment('');
     setQuantity(1);
   };
+    if (loading) {
+    return <div className="loading-spinner">Загрузка...</div>;
+  }
 
   // Функция для добавления комментария из примера
   const addExampleComment = (exampleText) => {
@@ -83,7 +90,7 @@ const ProductPage = ({ addToCart }) => {
       <button onClick={() => navigate(-1)} className="back-button">
         ← Назад
       </button>
-      
+
       <div className="product-container">
         <div className="product-main">
           <div className="product-gallery">
@@ -91,18 +98,18 @@ const ProductPage = ({ addToCart }) => {
               <img src={product.image} alt={product.name} />
             </div>
           </div>
-          
+
           <div className="product-info">
             <h1 className="product-title">{product.name}</h1>
-            
+
             <div className="product-price-section">
               <div className="current-price">{product.price} ₽ / шт</div>
             </div>
-            
+
             <div className="quantity-section">
               <span className="quantity-label">Количество:</span>
               <div className="quantity-controls">
-                <button 
+                <button
                   className="quantity-btn-page"
                   onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
@@ -110,7 +117,7 @@ const ProductPage = ({ addToCart }) => {
                   -
                 </button>
                 <span className="quantity-value">{quantity}</span>
-                <button 
+                <button
                   className="quantity-btn-page"
                   onClick={() => handleQuantityChange(1)}
                   disabled={quantity >= 99}
@@ -131,7 +138,7 @@ const ProductPage = ({ addToCart }) => {
                   <span className="comment-hint">(необязательно)</span>
                 </label>
                 {comment && (
-                  <button 
+                  <button
                     type="button"
                     className="clear-comment-btn"
                     onClick={clearComment}
@@ -150,56 +157,56 @@ const ProductPage = ({ addToCart }) => {
               <div className="comment-examples">
                 <span className="example-title">📌 Быстрые подсказки:</span>
                 <div className="examples-grid">
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("нарезка стейками 2см")}
                   >
                     🥩 нарезка стейками 2см
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("удалить лишний жир")}
                   >
                     🥓 удалить жир
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("отдельная упаковка")}
                   >
                     📦 отдельная упаковка
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("порубить на кости")}
                   >
                     🦴 порубить на кости
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("мелкий фарш")}
                   >
                     🥩 мелкий фарш
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("крупный фарш")}
                   >
                     🥩 крупный фарш
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("для шашлыка")}
                   >
                     🍖 для шашлыка
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className="example-tag"
                     onClick={() => addExampleComment("на кости")}
@@ -215,8 +222,8 @@ const ProductPage = ({ addToCart }) => {
                 </div>
               )}
             </div>
-            
-            <button 
+
+            <button
               className="add-to-cart-btn-page"
               onClick={handleAddToCart}
             >
@@ -224,12 +231,12 @@ const ProductPage = ({ addToCart }) => {
             </button>
           </div>
         </div>
-        
+
         <div className="product-description">
           <h3>Описание</h3>
           <p className="description-text">{product.description}</p>
         </div>
-        
+
         <div className="product-nutrition">
           <h3>Пищевая ценность (на 100г)</h3>
           <div className="nutrition-grid">
@@ -255,7 +262,7 @@ const ProductPage = ({ addToCart }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="product-ingredients">
           <h3>Состав</h3>
           <div className="ingredients-list">
@@ -263,15 +270,15 @@ const ProductPage = ({ addToCart }) => {
           </div>
         </div>
       </div>
-      
+
       {similarProducts.length > 0 && (
         <div className="similar-products">
           <h3>Похожие товары</h3>
           <div className="similar-products-grid">
             {similarProducts.map(similarProduct => (
-              <ProductCard 
-                key={similarProduct.id} 
-                product={similarProduct} 
+              <ProductCard
+                key={similarProduct.id}
+                product={similarProduct}
                 addToCart={addToCart}
               />
             ))}

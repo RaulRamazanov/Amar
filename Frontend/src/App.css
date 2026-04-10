@@ -460,7 +460,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit:cover;
   z-index: 1;
 }
 
@@ -470,7 +470,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(139,44,29,0.7) 100%);
+  background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(139,44,29,0.3) 100%);
   z-index: 2;
 }
 
@@ -561,10 +561,35 @@ body {
   height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.6) 100%
+    rgba(0, 0, 0, 0.2 ) 0%,
+    rgba(0, 0, 0, 0.4) 100%
   );
   transition: all 0.3s ease;
+}
+
+/* App.css */
+.loading-spinner {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #c2410c;
+}
+
+.loading-spinner::before {
+  content: '⏳';
+  display: block;
+  font-size: 48px;
+  margin-bottom: 15px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .category-card:hover .category-overlay {
@@ -842,16 +867,6 @@ body {
   transform: translateY(0);
 }
 
-/* Иконка корзины в кнопке */
-.add-to-cart-btn::after {
-  content: '🛒';
-  font-size: 14px;
-  transition: transform 0.3s;
-}
-
-.add-to-cart-btn:hover::after {
-  transform: translateX(3px);
-}
 
 /* Убираем дублирование иконки если она есть в тексте */
 .add-to-cart-btn span {
@@ -1344,6 +1359,9 @@ body {
 
 .cart-header h2 {
   font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 0 5px;
   margin: 0;
 }
 
@@ -1482,8 +1500,8 @@ body {
 }
 
 .empty-cart p:first-child {
-  font-size: 48px;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
 }
 
 /* ==================== PRODUCT PAGE ==================== */
@@ -1679,6 +1697,48 @@ body {
   color: #2c2c2c;
 }
 
+/* Стили для SVG иконок категорий */
+.category-icon-svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-icon-svg {
+  transform: scale(1.1);
+}
+
+/* Если используете SVG как компонент */
+.category-icon-svg svg {
+  /* width: 100%;
+  height: 100%; */
+  fill: currentColor;
+}
+
+/* Альтернативный вариант - иконка на фоне */
+.category-icon-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-icon-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .quantity-controls {
   display: flex;
   align-items: center;
@@ -1701,6 +1761,188 @@ body {
   background: #c2410c;
   color: white;
   border-color: #c2410c;
+}
+
+
+/* Стили для табов с SVG иконками */
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 35px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ffe0d0;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1.5px solid #ffe0d0;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  color: #5a5a5a;
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+.tab-icon-svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.tab-text {
+  line-height: 1;
+}
+
+.tab-btn:hover {
+  border-color: #c2410c;
+  color: #c2410c;
+  transform: translateY(-2px);
+  background: rgba(194, 65, 12, 0.05);
+}
+
+.tab-btn:hover .tab-icon-svg {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(71%) saturate(1235%) hue-rotate(340deg) brightness(95%) contrast(91%);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #c2410c, #e05a1a);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(194, 65, 12, 0.3);
+}
+
+.tab-btn.active .tab-icon-svg {
+  filter: brightness(0) invert(1);
+}
+
+/* Альтернативный вариант - с фоном для иконки */
+.tab-btn-with-bg {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  background: white;
+  border: 1px solid #ffe0d0;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #fff5f0;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.tab-icon-svg-small {
+  width: 16px;
+  height: 16px;
+}
+
+.tab-btn-with-bg:hover {
+  border-color: #c2410c;
+  background: #fff5f0;
+}
+
+.tab-btn-with-bg.active {
+  background: #c2410c;
+  color: white;
+  border-color: #c2410c;
+}
+
+.tab-btn-with-bg.active .tab-icon-wrapper {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  .tab-icon-svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .tab-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  
+  .tab-icon-svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .tab-text {
+    font-size: 12px;
+  }
+}
+
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.cart-icon:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cart-icon-svg {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 0 5px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .cart-icon-svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .cart-count {
+    font-size: 10px;
+    min-width: 16px;
+    height: 16px;
+    top: -4px;
+    right: -4px;
+  }
 }
 
 .quantity-value {
@@ -2358,6 +2600,9 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  gap: 0 5px;
+  align-items: center;
   font-size: 12px;
   font-weight: 500;
   transition: all 0.3s;

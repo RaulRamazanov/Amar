@@ -2,15 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchDropdown from './SearchDropdown';
 import { products } from '../data/products';
+import cartIcon from '../assets/cart.svg'; // импортируем SVG иконку корзины
 import '../App.css';
 
-const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
+export const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
   const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -49,60 +47,52 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
     }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName('');
-    alert('Вы вышли из аккаунта');
-  };
-
   return (
-    <>
-      <header className="header">
-        <div className="header-container">
-          <Link to="/" className="logo">
-            <span className="logo-icon">🥩</span>
-            <span className="logo-text">MeatMarket</span>
-          </Link>
+    <header className="header">
+      <div className="header-container">
+        <Link to="/" className="logo">
+          <span className="logo-icon">🥩</span>
+          <span className="logo-text">MeatMarket</span>
+        </Link>
 
-          <div className="search-wrapper">
-            <form onSubmit={handleSearch} className="search-form">
-                <input
-                  type="text"
-                  placeholder="Поиск мяса, стейков..."
-                  value={searchQuery || localSearchQuery}
-                  onChange={handleInputChange}
-                  onFocus={handleInputFocus}
-                  className="search-input"
-                />
-                {(searchQuery || localSearchQuery) && (
-                  <button 
-                    type="button" 
-                    className="clear-search-btn"
-                    onClick={handleClearSearch}
-                  >
-                    ✕
-                  </button>
-                )}
-            </form>
-            
-            <SearchDropdown 
-              searchQuery={searchQuery || localSearchQuery}
-              setSearchQuery={(value) => {
-                setLocalSearchQuery(value);
-                setSearchQuery(value);
-              }}
-              products={products}
-              isInputFocused={isSearchFocused}
-              onClose={handleCloseDropdown}
-            />
-          </div>
+        <div className="search-wrapper">
+          <form onSubmit={handleSearch} className="search-form">
+              <input
+                type="text"
+                placeholder="Поиск мяса, стейков..."
+                value={searchQuery || localSearchQuery}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                className="search-input"
+              />
+              {(searchQuery || localSearchQuery) && (
+                <button 
+                  type="button" 
+                  className="clear-search-btn"
+                  onClick={handleClearSearch}
+                >
+                  ✕
+                </button>
+              )}
+          </form>
+          
+          <SearchDropdown 
+            searchQuery={searchQuery || localSearchQuery}
+            setSearchQuery={(value) => {
+              setLocalSearchQuery(value);
+              setSearchQuery(value);
+            }}
+            products={products}
+            isInputFocused={isSearchFocused}
+            onClose={handleCloseDropdown}
+          />
+        </div>
 
-          <div className="header-actions">
-            {/* Кнопка авторизации вместо каталога */}
-            <div className="cart-icon" onClick={onCartOpen}>
-              🛒
-              {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
-            </div>
+        <div className="header-actions">
+          {/* Иконка корзины с SVG */}
+          <div className="cart-icon" onClick={onCartOpen}>
+            <img src={cartIcon} alt="Корзина" className="cart-icon-svg" />
+            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </div>
         </div>
       </header>
@@ -114,5 +104,3 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
     </>
   );
 };
-
-export default Header;
