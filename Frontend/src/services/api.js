@@ -1,7 +1,8 @@
 // src/services/api.js
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
+// Используем относительный путь, чтобы запросы шли через прокси Vite
+const API_BASE_URL = '/api';
 
-// Импортируем локальные данные категорий для сопоставления
+// Локальные категории (только для маппинга и запасного варианта)
 import { categories as localCategories } from '../data/products';
 
 // Получить список всех категорий с бэкенда
@@ -16,7 +17,7 @@ export const fetchCategories = async () => {
     // Сопоставляем данные с бэкенда с локальными данными
     const mappedCategories = backendCategories
       .map(catId => localCategories.find(localCat => localCat.id === catId))
-      .filter(cat => cat !== undefined); // Убираем undefined, если ID не найден
+      .filter(cat => cat !== undefined);
     
     return mappedCategories;
   } catch (error) {
@@ -38,6 +39,7 @@ export const fetchProducts = async (categoryId = null) => {
     return await response.json();
   } catch (error) {
     console.error('Error fetching products:', error);
+    // Возвращаем пустой массив, чтобы не показывать статику
     return [];
   }
 };
@@ -56,7 +58,6 @@ export const fetchProductById = async (productId) => {
 
 export const createOrder = async (orderData) => {
   try {
-    // Преобразуем данные из формы в нужный формат
     const formattedOrder = {
       customer_name: orderData.customer.name,
       customer_phone: orderData.customer.phone,
