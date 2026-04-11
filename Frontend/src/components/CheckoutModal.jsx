@@ -89,7 +89,6 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
         <button className="checkout-close" onClick={() => onClose(false)}>×</button>
         
         <div className="checkout-header">
-          <div className="checkout-icon">📦</div>
           <h2>Оформление заказа</h2>
           <p className="checkout-subtitle">Заполните форму для оформления заказа</p>
         </div>

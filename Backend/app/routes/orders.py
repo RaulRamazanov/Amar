@@ -161,9 +161,9 @@ def get_order(order_id):
     """
     order = Order.query.get_or_404(order_id)
 
-    session_id = get_session_id()
-    if order.session_id != session_id:
-        return jsonify({'error': 'Доступ запрещен'}), 403
+    # session_id = get_session_id()
+    # if order.session_id != session_id:
+    #     return jsonify({'error': 'Доступ запрещен'}), 403
 
     return jsonify(order.to_dict())
 

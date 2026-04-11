@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
@@ -8,14 +8,24 @@ import CatalogPage from './pages/CatalogPage';
 import ProductPage from './pages/ProductPage';
 import Cart from './components/Cart';
 
+// Ленивая загрузка админки — загрузится только при переходе на /admin
+// const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
+
+  const handleCartClose = (success) =>{
+    setIsCartOpen(false)
+    if (success){
+      setCartItems([])
+    }
+  }
+
   const addToCart = (product) => {
     setCartItems(prevItems => {
-      // Проверяем, есть ли уже такой товар с таким же комментарием
       const existingItem = prevItems.find(item => 
         item.id === product.id && item.comment === (product.comment || '')
       );
@@ -33,7 +43,7 @@ function App() {
         comment: product.comment || ''
       }];
     });
-    setIsCartOpen(true)
+    setIsCartOpen(true);
   };
 
   const updateQuantity = (productId, newQuantity) => {
@@ -80,19 +90,23 @@ function App() {
           onCartOpen={() => setIsCartOpen(true)}
         />
         <main className="main-content">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/catalog" element={
-              <CatalogPage 
-                searchQuery={searchQuery} 
-                addToCart={addToCart}
-                onSearchClear={handleSearchClear}
-              />
-            } />
-            <Route path="/product/:id" element={
-              <ProductPage addToCart={addToCart} />
-            } />
-          </Routes>
+          <Suspense fallback={<div className="loading">Загрузка...</div>}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/catalog" element={
+                <CatalogPage 
+                  searchQuery={searchQuery} 
+                  addToCart={addToCart}
+                  onSearchClear={handleSearchClear}
+                />
+              } />
+              <Route path="/product/:id" element={
+                <ProductPage addToCart={addToCart} />
+              } />
+              {/* Админка без защиты — открыта для теста */}
+              {/* <Route path="/admin" element={<AdminPanel />} /> */}
+            </Routes>
+          </Suspense>
         </main>
         <Footer />
         
@@ -102,7 +116,7 @@ function App() {
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}
             updateComment={updateComment}
-            onClose={() => setIsCartOpen(false)}
+            onClose={handleCartClose}
           />
         )}
       </div>
