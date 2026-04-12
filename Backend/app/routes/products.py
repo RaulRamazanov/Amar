@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from app.models.models import db, Product
+from app.models.models import db, Product, OrderItem
 import uuid
 import os
 
@@ -275,16 +275,49 @@ def delete_product(product_id):
     responses:
       200:
         description: Товар удален
+      400:
+        description: Нельзя удалить товар, который есть в заказах
+      404:
+        description: Товар не найден
     """
     product = Product.query.get_or_404(product_id)
-
-    if product.order_items:
-        return jsonify({'error': 'Нельзя удалить товар, который есть в заказах'}), 400
-
+    
+    # ПРАВИЛЬНАЯ проверка: есть ли товар в заказах
+    # Используем OrderItem, а не product.order_items (это отношение)
+    order_items_count = OrderItem.query.filter_by(product_id=product.id).count()
+    
+    if order_items_count > 0:
+        return jsonify({
+            'error': f'Нельзя удалить товар "{product.name}", так как он присутствует в {order_items_count} заказах'
+        }), 400
+    
+    # Удаляем файл фото, если он существует
+    if product.image:
+        # Убираем ведущий слеш если есть
+        image_path = product.image.lstrip('/')
+        
+        # Полный путь к файлу
+        file_path = os.path.join('', image_path)
+        
+        # Проверяем существование файла и удаляем
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+                print(f"✅ Файл фото удален: {file_path}")
+            except Exception as e:
+                print(f"⚠️ Ошибка при удалении файла: {e}")
+                return
+        else:
+            print(f"⚠️ Файл не найден: {file_path}")
+    
+    # Удаляем товар из БД
     db.session.delete(product)
     db.session.commit()
-
-    return jsonify({'message': 'Товар успешно удален'})
+    
+    return jsonify({
+        'message': f'Товар "{product.name}" успешно удален',
+        'deleted_image': bool(product.image)
+    }), 200
 
 @products_bp.route('/categories', methods=['GET'])
 def get_categories():
