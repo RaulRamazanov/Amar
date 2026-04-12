@@ -14,7 +14,7 @@ const CATEGORY_OPTIONS = [
   { value: 'pork', label: 'Свинина' },
 ];
 
-const API_BASE = '/api';
+const API_BASE = 'http://127.0.0.1:5000/api';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -22,6 +22,7 @@ const AdminPanel = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   // Поиск
   const [productSearch, setProductSearch] = useState('');
@@ -34,6 +35,7 @@ const AdminPanel = () => {
     price: '',
     category: 'beef',
     image: '',
+    imagePreview: null,
     description: '',
     nutrition: {},
     ingredients: '',
@@ -87,6 +89,7 @@ const AdminPanel = () => {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setUploading(true)
 
     let nutritionObj = {};
     try {
@@ -96,16 +99,21 @@ const AdminPanel = () => {
       return;
     }
 
-    const productData = {
-      name: productForm.name,
-      price: parseFloat(productForm.price),
-      category: productForm.category,
-      image: productForm.image,
-      description: productForm.description,
-      nutrition: nutritionObj,
-      ingredients: productForm.ingredients,
-      in_stock: productForm.in_stock,
-    };
+    const formData = new FormData();
+    formData.append('name', productForm.name);
+    formData.append('price', parseFloat(productForm.price));
+    formData.append('category', productForm.category);
+    formData.append('description', productForm.description);
+    formData.append('ingredients', productForm.ingredients);
+    formData.append('in_stock', productForm.in_stock);
+    formData.append('nutrition', JSON.stringify(nutritionObj));
+
+    // Обработка фото
+    if (productForm.image instanceof File) {
+      formData.append('image', productForm.image); // ✅ Отправляем файл
+    } else if (typeof productForm.image === 'string' && productForm.image) {
+      formData.append('existing_image', productForm.image); // Отправляем старый URL
+    }
 
     try {
       const url = productForm.id
@@ -114,8 +122,8 @@ const AdminPanel = () => {
       const method = productForm.id ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData),
+        // headers: { 'Content-Type': 'application/json' },
+        body: formData,
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
@@ -123,6 +131,7 @@ const AdminPanel = () => {
       }
       fetchProducts();
       resetProductForm();
+      setUploading(false)
     } catch (err) {
       setError(err.message);
     }
@@ -151,6 +160,7 @@ const AdminPanel = () => {
       price: product.price,
       category: product.category,
       image: product.image || '',
+      imagePreview: product.image || null,
       description: product.description || '',
       nutrition: product.nutrition || {},
       ingredients: product.ingredients || '',
@@ -166,6 +176,9 @@ const AdminPanel = () => {
   };
 
   const resetProductForm = () => {
+    if (productForm.imagePreview && productForm.imagePreview instanceof String && productForm.imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(productForm.imagePreview);
+    }
     setProductForm({
       id: null,
       name: '',
@@ -194,6 +207,33 @@ const AdminPanel = () => {
       fetchOrders();
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+    const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Проверка типа файла
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Можно загружать только изображения (JPEG, PNG, WEBP, GIF)');
+        return;
+      }
+      
+      // Проверка размера (максимум 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Размер файла не должен превышать 5MB');
+        return;
+      }
+      
+      // Создаем preview для отображения
+      const previewUrl = URL.createObjectURL(file);
+      
+      setProductForm({
+        ...productForm,
+        image: file,
+        imagePreview: previewUrl
+      });
     }
   };
 
@@ -316,12 +356,29 @@ const AdminPanel = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>URL изображения</label>
+                <label>Фото товара</label>
                 <input
-                  type="text"
-                  value={productForm.image}
-                  onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={handleImageChange}
+                  className="file-input"
                 />
+                
+                {/* Предпросмотр фото */}
+                {productForm.imagePreview && (
+                  <div className="image-preview">
+                    <img 
+                      src={productForm.imagePreview} 
+                      alt="Предпросмотр"
+                      style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }}
+                    />
+                    {productForm.image && productForm.image instanceof File && (
+                      <p className="file-info">
+                        Файл: {productForm.image.name} ({(productForm.image.size / 1024).toFixed(2)} KB)
+                      </p>
+                    )}
+              </div>
+                )}
               </div>
               <div className="form-group">
                 <label>Описание</label>
@@ -357,7 +414,9 @@ const AdminPanel = () => {
                 <label htmlFor="in_stock">В наличии</label>
               </div>
               <div className="form-buttons">
-                <button type="submit">{productForm.id ? 'Сохранить' : 'Добавить'}</button>
+                <button type="submit" disabled={uploading}>
+                  {uploading ? 'Сохранение...' : (productForm.id ? 'Сохранить' : 'Добавить')}
+                </button>
                 {productForm.id && (
                   <button type="button" onClick={resetProductForm}>
                     Отмена
