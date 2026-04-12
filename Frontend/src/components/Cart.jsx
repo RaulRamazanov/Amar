@@ -22,9 +22,10 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
 
   const handleCheckoutClose = (success) => {
     setIsCheckoutOpen(false);
-    if (success) {
-      onClose();
-    }
+    console.log(success);
+    
+    onClose(success);
+
   };
 
   const handleCommentClick = (item) => {
@@ -59,11 +60,11 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
 
   return (
     <>
-      <div className="cart-overlay" onClick={onClose}>
+      <div className="cart-overlay" onClick={() => handleCheckoutClose(false)}>
         <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
           <div className="cart-header">
             <h2><img src={cartIcon} alt="Корзина" className="cart-icon-svg" style={{filter: "brightness(0) invert(1)"}} /> Корзина</h2>
-            <button className="close-cart" onClick={onClose}>×</button>
+            <button className="close-cart" onClick={() => handleCheckoutClose(false)}>×</button>
           </div>
           
           <div className="cart-items">

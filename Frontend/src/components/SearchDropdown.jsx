@@ -1,25 +1,42 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchProducts } from '../services/api';
 import '../App.css';
 
-const SearchDropdown = ({ searchQuery, setSearchQuery, products, isInputFocused, onClose }) => {
+const SearchDropdown = ({ searchQuery, setSearchQuery, isInputFocused, onClose }) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
+  // Загружаем все товары при фокусе на поиске
+  useEffect(() => {
+    if (isInputFocused && allProducts.length === 0) {
+      loadAllProducts();
+    }
+  }, [isInputFocused]);
+
+  const loadAllProducts = async () => {
+    setLoading(true);
+    const products = await fetchProducts();
+    setAllProducts(products);
+    setLoading(false);
+  };
+
   useEffect(() => {
     // Если инпут в фокусе и поисковый запрос пустой - показываем все товары
-    if (isInputFocused) {
+    if (isInputFocused && !loading) {
       if (!searchQuery || searchQuery.trim() === '') {
-        // Показываем первые 8 товаров
-        setFilteredProducts(products.slice(0, 20));
+        // Показываем первые 20 товаров
+        setFilteredProducts(allProducts.slice(0, 50));
         setIsOpen(true);
       } else if (searchQuery.trim().length > 0) {
         // Фильтруем товары по поисковому запросу
-        const filtered = products
+        const filtered = allProducts
           .filter(product => 
-            product.name.toLowerCase().includes(searchQuery.toLowerCase())
+            product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase())
           )
           .slice(0, 8);
         setFilteredProducts(filtered);
@@ -28,7 +45,7 @@ const SearchDropdown = ({ searchQuery, setSearchQuery, products, isInputFocused,
     } else {
       setIsOpen(false);
     }
-  }, [searchQuery, isInputFocused, products]);
+  }, [searchQuery, isInputFocused, allProducts, loading]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -64,6 +81,20 @@ const SearchDropdown = ({ searchQuery, setSearchQuery, products, isInputFocused,
 
   const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
   const displayTitle = hasSearchQuery ? 'Результаты поиска' : 'Популярные товары';
+
+  if (loading) {
+    return (
+      <div className="search-dropdown" ref={dropdownRef}>
+        <div className="dropdown-header">
+          <span>Загрузка...</span>
+        </div>
+        <div className="loading-products">
+          <div className="loader"></div>
+          <p>Загрузка товаров...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="search-dropdown" ref={dropdownRef}>

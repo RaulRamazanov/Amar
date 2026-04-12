@@ -5,6 +5,10 @@ import { fetchProductById, fetchProducts } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import '../App.css';
 
+
+
+const API_BASE_URL = 'http://localhost:5000'; // Ваш бекенд URL
+
 const ProductPage = ({ addToCart }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,6 +25,8 @@ const ProductPage = ({ addToCart }) => {
   const loadProduct = async () => {
     setLoading(true);
     const data = await fetchProductById(id);
+    console.log(data);
+    
     if (data) {
       setProduct(data);
       // Загружаем похожие товары из той же категории
@@ -96,7 +102,8 @@ const ProductPage = ({ addToCart }) => {
         <div className="product-main">
           <div className="product-gallery">
             <div className="main-image">
-              <img src={product.image} alt={product.name} />
+              {console.log('Полный URL:', `${API_BASE_URL}${product.image}`)}
+              <img src={`${API_BASE_URL}${product.image}`} alt={product.name} />
             </div>
           </div>
 
