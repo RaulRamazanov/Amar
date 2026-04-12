@@ -128,7 +128,7 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
         <div className="loading-spinner">Загрузка товаров...</div>
       ) : filteredProducts.length === 0 ? (
         <div className="no-products">
-          <p>😕 Товары не найдены</p>
+          <p>Товары не найдены</p>
           <p>Попробуйте изменить параметры поиска</p>
           <button onClick={() => {
             handleCategoryChange('all');

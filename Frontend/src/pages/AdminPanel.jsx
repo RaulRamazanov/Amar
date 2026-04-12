@@ -1,6 +1,8 @@
 // Frontend/src/pages/AdminPanel.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import './AdminPanel.css';
+import editIcon from "../assets/comment.svg"
+import deleteIcon from "../assets/trash.svg"
 
 const CATEGORY_OPTIONS = [
   { value: 'beef', label: 'Говядина' },
@@ -13,7 +15,7 @@ const CATEGORY_OPTIONS = [
   { value: 'pork', label: 'Свинина' },
 ];
 
-const API_BASE = '/api';
+const API_BASE = ' http://localhost:5000/api';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -284,7 +286,7 @@ const AdminPanel = () => {
             <h2>Список товаров</h2>
             <input
               type="text"
-              placeholder="🔍 Поиск по названию..."
+              placeholder=" Поиск по названию..."
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
               className="search-input"
@@ -312,8 +314,8 @@ const AdminPanel = () => {
                     <td>{CATEGORY_OPTIONS.find(c => c.value === p.category)?.label || p.category}</td>
                     <td>{p.in_stock ? '✅' : '❌'}</td>
                     <td>
-                      <button onClick={() => handleEditProduct(p)}>✏️</button>
-                      <button onClick={() => handleDeleteProduct(p.id)}>🗑️</button>
+                      <button onClick={() => handleEditProduct(p)}> <img style={{width:24, height:24}} src={editIcon} alt="" /> </button>
+                      <button onClick={() => handleDeleteProduct(p.id)}> <img style={{width:24, height:24}} src={deleteIcon} alt="" /> </button>
                     </td>
                   </tr>
                 ))}
@@ -446,7 +448,7 @@ const AdminPanel = () => {
             <h2>Список заказов</h2>
             <input
               type="text"
-              placeholder="🔍 Поиск по имени, телефону или ID..."
+              placeholder="Поиск по имени, телефону или ID..."
               value={orderSearch}
               onChange={(e) => setOrderSearch(e.target.value)}
               className="search-input"
