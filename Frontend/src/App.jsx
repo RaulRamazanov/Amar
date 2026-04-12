@@ -9,7 +9,7 @@ import ProductPage from './pages/ProductPage';
 import Cart from './components/Cart';
 
 // Ленивая загрузка админки — загрузится только при переходе на /admin
-// const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,7 +104,7 @@ function App() {
                 <ProductPage addToCart={addToCart} />
               } />
               {/* Админка без защиты — открыта для теста */}
-              {/* <Route path="/admin" element={<AdminPanel />} /> */}
+              <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </Suspense>
         </main>
