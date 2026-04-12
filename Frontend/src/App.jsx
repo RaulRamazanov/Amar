@@ -16,6 +16,14 @@ function App() {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
+
+  const handleCartClose = (success) =>{
+    setIsCartOpen(false)
+    if (success){
+      setCartItems([])
+    }
+  }
+
   const addToCart = (product) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => 
@@ -108,7 +116,7 @@ function App() {
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}
             updateComment={updateComment}
-            onClose={() => setIsCartOpen(false)}
+            onClose={handleCartClose}
           />
         )}
       </div>
