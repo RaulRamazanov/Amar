@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { categories } from '../data/products';
+import { fetchCategories } from '../services/api';
 import CategoryCard from '../components/CategoryCard';
+import mainImg from "../assets/main.jpg"
 import '../App.css';
 
 const HomePage = () => {
-  // Замените URL на свое фото
-  const heroImage = 'https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=1400&h=500&fit=crop';
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const heroImage = mainImg;
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    setLoading(true);
+    const data = await fetchCategories();
+    setCategories(data);
+    setLoading(false);
+  };
 
   return (
     <div className="home-page">
@@ -25,11 +39,16 @@ const HomePage = () => {
           <h2>Наши категории</h2>
           <Link to="/catalog" className="view-all-link">Весь каталог →</Link>
         </div>
-        <div className="categories-grid">
-          {categories.map(category => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-        </div>
+
+        {loading ? (
+          <div className="loading-spinner">Загрузка категорий...</div>
+        ) : (
+          <div className="categories-grid">
+            {categories.map(category => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

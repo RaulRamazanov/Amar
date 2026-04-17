@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchDropdown from './SearchDropdown';
-import { products } from '../data/products';
+import OrdersModal from './OrdersModal';
+import cartIcon from '../assets/cart.svg';
+import orderIcon from "../assets/order.svg"
 import '../App.css';
 
 const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
   const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
+  const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -41,18 +41,12 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
     setLocalSearchQuery('');
     setSearchQuery('');
     setIsSearchFocused(false);
-    
+
     const url = new URL(window.location.href);
     if (url.searchParams.has('search')) {
       url.searchParams.delete('search');
       window.history.pushState({}, '', url.toString());
     }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName('');
-    alert('Вы вышли из аккаунта');
   };
 
   return (
@@ -75,8 +69,8 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
                   className="search-input"
                 />
                 {(searchQuery || localSearchQuery) && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="clear-search-btn"
                     onClick={handleClearSearch}
                   >
@@ -84,32 +78,40 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
                   </button>
                 )}
             </form>
-            
-            <SearchDropdown 
+
+            <SearchDropdown
               searchQuery={searchQuery || localSearchQuery}
               setSearchQuery={(value) => {
                 setLocalSearchQuery(value);
                 setSearchQuery(value);
               }}
-              products={products}
               isInputFocused={isSearchFocused}
               onClose={handleCloseDropdown}
             />
           </div>
 
           <div className="header-actions">
-            {/* Кнопка авторизации вместо каталога */}
+            {/* Кнопка "Мои заявки" */}
+            <button
+              className="orders-btn"
+              style={{color: "#222"}}
+              onClick={() => setIsOrdersModalOpen(true)}
+            >
+              <img src={orderIcon} alt="Корзина" className="tab-icon-svg" /> Мои заявки
+            </button>
+
+            {/* Иконка корзины */}
             <div className="cart-icon" onClick={onCartOpen}>
-              🛒
+              <img src={cartIcon} alt="Корзина" className="cart-icon-svg" />
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Модальное окно авторизации */}
-      {isAuthModalOpen && (
-        <AuthModal onClose={() => setIsAuthModalOpen(false)} />
+      {/* Модальное окно заявок */}
+      {isOrdersModalOpen && (
+        <OrdersModal onClose={() => setIsOrdersModalOpen(false)} />
       )}
     </>
   );

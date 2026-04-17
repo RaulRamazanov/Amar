@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import CheckoutModal from './CheckoutModal';
 import '../App.css';
+import deleteIcon from "../assets/trash.svg"
+import commentIcon from "../assets/comment.svg"
+import saveIcon from '../assets/save.svg'
+import cartIcon from '../assets/cart.svg';
+import noCartIcon from '../assets/nocart.svg'
 
 const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClose }) => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -17,9 +22,10 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
 
   const handleCheckoutClose = (success) => {
     setIsCheckoutOpen(false);
-    if (success) {
-      onClose();
-    }
+    console.log(success);
+
+    onClose(success);
+
   };
 
   const handleCommentClick = (item) => {
@@ -54,17 +60,17 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
 
   return (
     <>
-      <div className="cart-overlay" onClick={onClose}>
+      <div className="cart-overlay" onClick={() => handleCheckoutClose(false)}>
         <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
           <div className="cart-header">
-            <h2>🛒 Корзина</h2>
-            <button className="close-cart" onClick={onClose}>×</button>
+            <h2><img src={cartIcon} alt="Корзина" className="cart-icon-svg" style={{filter: "brightness(0) invert(1)"}} /> Корзина</h2>
+            <button className="close-cart" onClick={() => handleCheckoutClose(false)}>×</button>
           </div>
-          
+
           <div className="cart-items">
             {cartItems.length === 0 ? (
               <div className="empty-cart">
-                <p>🛍️</p>
+                <p><img src={noCartIcon} alt="" className='cart-icon-svg' /></p>
                 <p>Корзина пуста</p>
                 <p style={{ fontSize: '14px', marginTop: '10px' }}>Добавьте товары из каталога</p>
               </div>
@@ -77,7 +83,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                   <div className="cart-item-info">
                     <h4>{item.name}</h4>
                     <div className="cart-item-price">{item.price} ₽</div>
-                    
+
                     {/* Комментарий к товару */}
                     <div className="cart-item-comment">
                       {editingCommentId === item.id ? (
@@ -90,64 +96,64 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                             rows="2"
                             autoFocus
                           />
-                          
+
                           {/* Быстрые подсказки при редактировании */}
                           <div className="comment-quick-examples">
                             <span className="quick-label">⚡ Быстро добавить:</span>
                             <div className="quick-examples-grid">
-                              <button 
+                              <button
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("нарезка стейками 2см")}
                               >
-                                🥩 нарезка
+                                нарезка
                               </button>
-                              <button 
+                              <button
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("удалить лишний жир")}
                               >
-                                🥓 удалить жир
+                                удалить жир
                               </button>
-                              <button 
+                              <button
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("отдельная упаковка")}
                               >
-                                📦 отдельно
+                                отдельно
                               </button>
-                              <button 
+                              <button
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("порубить на кости")}
                               >
-                                🦴 на кости
+                                на кости
                               </button>
-                              <button 
+                              <button
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("мелкий фарш")}
                               >
-                                🥩 мелкий фарш
+                                мелкий фарш
                               </button>
-                              <button 
+                              <button
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("для шашлыка")}
                               >
-                                🍖 для шашлыка
+                                для шашлыка
                               </button>
                             </div>
                           </div>
-                          
+
                           <div className="comment-actions">
-                            <button 
+                            <button
                               className="comment-save-btn"
                               onClick={() => handleCommentSave(item.id)}
                             >
-                              💾 Сохранить
+                              <img src={saveIcon} className='tab-icon-svg' alt="" /> Сохранить
                             </button>
-                            <button 
+                            <button
                               className="comment-cancel-btn"
                               onClick={handleCommentCancel}
                             >
@@ -157,34 +163,35 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                         </div>
                       ) : (
                         <div className="comment-display" onClick={() => handleCommentClick(item)}>
-                          <span className="comment-icon">📝</span>
                           <span className="comment-text">
                             {item.comment ? item.comment : 'Добавить комментарий...'}
                           </span>
-                          <button className="edit-comment-btn">✏️</button>
+                          <button className="edit-comment-btn">
+                            <img src={commentIcon} className='tab-icon-svg'/>
+                          </button>
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="cart-item-actions">
-                      <button 
+                      <button
                         className="quantity-btn"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       >
                         -
                       </button>
                       <span className="quantity">{item.quantity}</span>
-                      <button 
+                      <button
                         className="quantity-btn"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       >
                         +
                       </button>
-                      <button 
+                      <button
                         className="remove-item"
                         onClick={() => removeFromCart(item.id)}
                       >
-                        🗑️
+                        <img src={deleteIcon} className='tab-icon-svg'/>
                       </button>
                     </div>
                   </div>
@@ -192,7 +199,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
               ))
             )}
           </div>
-          
+
           {cartItems.length > 0 && (
             <div className="cart-footer">
               <div className="cart-total">
@@ -208,7 +215,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
       </div>
 
       {isCheckoutOpen && (
-        <CheckoutModal 
+        <CheckoutModal
           onClose={handleCheckoutClose}
           cartItems={cartItems}
           totalPrice={totalPrice}

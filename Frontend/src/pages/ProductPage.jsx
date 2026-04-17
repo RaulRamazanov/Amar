@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
+import { fetchProductById, fetchProducts } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import '../App.css';
+
+
+
+const API_BASE_URL = 'http://localhost:5000'; // Ваш бекенд URL
 
 const ProductPage = ({ addToCart }) => {
   const { id } = useParams();
@@ -11,22 +16,28 @@ const ProductPage = ({ addToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [comment, setComment] = useState('');
   const [similarProducts, setSimilarProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const foundProduct = products.find(p => p.id === parseInt(id));
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setQuantity(1);
-      setComment('');
+    loadProduct();
+  }, [id]);
 
-      const similar = products
-        .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
-        .slice(0, 4);
-      setSimilarProducts(similar);
+  const loadProduct = async () => {
+    setLoading(true);
+    const data = await fetchProductById(id);
+    console.log(data);
+
+    if (data) {
+      setProduct(data);
+      // Загружаем похожие товары из той же категории
+      const similar = await fetchProducts(data.category);
+      const filteredSimilar = similar.filter(p => p.id !== data.id).slice(0, 4);
+      setSimilarProducts(filteredSimilar);
     } else {
       navigate('/catalog');
     }
-  }, [id, navigate]);
+    setLoading(false);
+  };
 
   const handleQuantityChange = (delta) => {
     const newQuantity = quantity + delta;
@@ -50,6 +61,9 @@ const ProductPage = ({ addToCart }) => {
     setComment('');
     setQuantity(1);
   };
+    if (loading) {
+    return <div className="loading-spinner">Загрузка...</div>;
+  }
 
   // Функция для добавления комментария из примера
   const addExampleComment = (exampleText) => {
@@ -88,7 +102,8 @@ const ProductPage = ({ addToCart }) => {
         <div className="product-main">
           <div className="product-gallery">
             <div className="main-image">
-              <img src={product.image} alt={product.name} />
+              {console.log('Полный URL:', `${API_BASE_URL}${product.image}`)}
+              <img src={`${API_BASE_URL}${product.image}`} alt={product.name} />
             </div>
           </div>
 

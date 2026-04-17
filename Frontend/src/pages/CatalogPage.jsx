@@ -1,67 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { products, categories } from '../data/products';
+import { fetchProducts, fetchCategories } from '../services/api';
+import { categories as localCategories } from '../data/products'; // Импортируем локальные категории для порядка
 import ProductCard from '../components/ProductCard';
 import '../App.css';
 
 const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
   const location = useLocation();
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentSearchQuery, setCurrentSearchQuery] = useState(searchQuery);
+  const [loading, setLoading] = useState(true);
 
-  // Получаем параметры из URL при загрузке и при изменении URL
+  // Загрузка категорий с сохранением порядка из локального массива
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  // Загрузка товаров
+  useEffect(() => {
+    loadProducts();
+  }, [activeCategory]);
+
+  const loadCategories = async () => {
+    const data = await fetchCategories();
+    // Сортируем категории в порядке, указанном в localCategories
+    const orderedCategories = localCategories.filter(
+      localCat => data.some(cat => cat.id === localCat.id)
+    );
+    setCategories(orderedCategories);
+  };
+
+  const loadProducts = async () => {
+    setLoading(true);
+    const categoryId = activeCategory !== 'all' ? activeCategory : null;
+    const data = await fetchProducts(categoryId);
+    setProducts(data);
+    setFilteredProducts(data);
+    setLoading(false);
+  };
+
+  // Получаем параметры из URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryParam = params.get('category');
     const searchParam = params.get('search');
 
-    // Устанавливаем категорию из URL
     if (categoryParam && categories.some(c => c.id === categoryParam)) {
       setActiveCategory(categoryParam);
     } else {
       setActiveCategory('all');
     }
 
-    // Устанавливаем поисковый запрос из URL
     if (searchParam) {
       setCurrentSearchQuery(searchParam);
     } else if (!searchQuery) {
       setCurrentSearchQuery('');
     }
-  }, [location.search, searchQuery]);
+  }, [location.search, searchQuery, categories]);
 
-  // Синхронизация с searchQuery из пропсов
+  // Фильтрация по поиску
   useEffect(() => {
-    if (searchQuery !== currentSearchQuery) {
-      setCurrentSearchQuery(searchQuery);
-    }
-  }, [searchQuery]);
-
-  // Фильтрация товаров при изменении категории или поискового запроса
-  useEffect(() => {
-    let filtered = [...products];
-
-    // Фильтр по категории
-    if (activeCategory !== 'all') {
-      filtered = filtered.filter(p => p.category === activeCategory);
-    }
-
-    // Фильтр по поиску
     if (currentSearchQuery && currentSearchQuery.trim()) {
       const query = currentSearchQuery.toLowerCase().trim();
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(query)
+      const filtered = products.filter(p =>
+        p.name && p.name.toLowerCase().includes(query)
       );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
     }
+  }, [currentSearchQuery, products]);
 
-    setFilteredProducts(filtered);
-  }, [activeCategory, currentSearchQuery]);
-
-  // Обработчик изменения категории
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
-    // Обновляем URL без перезагрузки страницы
     const params = new URLSearchParams(location.search);
     if (categoryId === 'all') {
       params.delete('category');
@@ -71,21 +85,18 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
     window.history.pushState({}, '', `${location.pathname}?${params.toString()}`);
   };
 
-  // Обработчик очистки поиска
   const handleClearSearch = () => {
     setCurrentSearchQuery('');
-    if (onSearchClear) {
-      onSearchClear();
-    }
+    if (onSearchClear) onSearchClear();
     const params = new URLSearchParams(location.search);
     params.delete('search');
     window.history.pushState({}, '', `${location.pathname}?${params.toString()}`);
   };
 
-  // Обработчик изменения поиска на странице каталога
-  const handleCatalogSearchChange = (e) => {
+  const handleSearchInputChange = (e) => {
     const value = e.target.value;
     setCurrentSearchQuery(value);
+    // Обновляем URL
     const params = new URLSearchParams(location.search);
     if (value.trim()) {
       params.set('search', value);
@@ -106,38 +117,40 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
             type="text"
             placeholder="Поиск по каталогу..."
             value={currentSearchQuery}
-            onChange={handleCatalogSearchChange}
+            onChange={handleSearchInputChange}
             className="catalog-search-input"
           />
           {currentSearchQuery && (
-            <button className="clear-catalog-search-btn" onClick={handleClearSearch}>
+            <button
+              className="clear-catalog-search-btn"
+              onClick={handleClearSearch}
+            >
               ✕
             </button>
           )}
-          {/* <button className="catalog-search-btn">🔍</button> */}
         </div>
       </div>
 
-      {/* Табы категорий */}
       <div className="category-tabs">
         <button
           className={`tab-btn ${activeCategory === 'all' ? 'active' : ''}`}
           onClick={() => handleCategoryChange('all')}
         >
-          Все товары
+          <span className="tab-text">Все товары</span>
         </button>
+
         {categories.map(cat => (
           <button
             key={cat.id}
             className={`tab-btn ${activeCategory === cat.id ? 'active' : ''}`}
             onClick={() => handleCategoryChange(cat.id)}
           >
-            {cat.icon} {cat.name}
+            <img src={cat.icon} alt={cat.name} className="tab-icon-svg" />
+            <span className="tab-text">{cat.name}</span>
           </button>
         ))}
       </div>
 
-      {/* Информация о количестве товаров */}
       <div className="products-info">
         <div className="products-count">
           Найдено товаров: {filteredProducts.length}
@@ -145,25 +158,21 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
         {currentSearchQuery && (
           <div className="active-search">
             Поиск: "{currentSearchQuery}"
-            <button onClick={handleClearSearch} className="clear-search-tag">
-              ✕
-            </button>
+            <button onClick={handleClearSearch} className="clear-search-tag">✕</button>
           </div>
         )}
       </div>
 
-      {/* Сетка товаров */}
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="loading-spinner">Загрузка товаров...</div>
+      ) : filteredProducts.length === 0 ? (
         <div className="no-products">
-          <p>😕 Товары не найдены</p>
-          <p>Попробуйте изменить параметры поиска или выберите другую категорию</p>
-          <button
-            onClick={() => {
-              handleCategoryChange('all');
-              handleClearSearch();
-            }}
-            className="reset-filters-btn"
-          >
+          <p>Товары не найдены</p>
+          <p>Попробуйте изменить параметры поиска</p>
+          <button onClick={() => {
+            handleCategoryChange('all');
+            handleClearSearch();
+          }} className="reset-filters-btn">
             Сбросить все фильтры
           </button>
         </div>

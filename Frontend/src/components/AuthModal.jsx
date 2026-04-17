@@ -25,19 +25,19 @@ const AuthModal = ({ onClose }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.email) {
       newErrors.email = 'Введите email';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Введите корректный email';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Введите пароль';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Пароль должен быть не менее 6 символов';
     }
-    
+
     if (!isLogin) {
       if (!formData.name) {
         newErrors.name = 'Введите ваше имя';
@@ -46,16 +46,16 @@ const AuthModal = ({ onClose }) => {
         newErrors.confirmPassword = 'Пароли не совпадают';
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     if (isLogin) {
       // Логика входа
       console.log('Вход:', { email: formData.email, password: formData.password });
@@ -86,16 +86,16 @@ const AuthModal = ({ onClose }) => {
     <div className="auth-overlay" onClick={onClose}>
       <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
         <button className="auth-close" onClick={onClose}>×</button>
-        
+
         <div className="auth-header">
           <div className="auth-tabs">
-            <button 
+            <button
               className={`auth-tab ${isLogin ? 'active' : ''}`}
               onClick={() => setIsLogin(true)}
             >
               Вход
             </button>
-            <button 
+            <button
               className={`auth-tab ${!isLogin ? 'active' : ''}`}
               onClick={() => setIsLogin(false)}
             >

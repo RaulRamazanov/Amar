@@ -1,13 +1,20 @@
 // src/data/products.js
+import beefIcon from '../assets/cow.svg'
+import chickenIcon from '../assets/chicken.svg';
+import lambIcon from '../assets/ram.svg';
+import mincedIcon from '../assets//meat.svg';
+import sausagesIcon from '../assets/sausage.svg';
+import speciaIcon from '../assets/specia.svg';
+import offalIcon from '../assets/food.svg';
+
 export const categories = [
-  { id: 'beef', name: 'Говядина', icon: '🥩' },
-  { id: 'pork', name: 'Свинина', icon: '🐷' },
-  { id: 'chicken', name: 'Курица', icon: '🍗' },
-  { id: 'lamb', name: 'Баранина', icon: '🐑' },
-  { id: 'minced', name: 'Фарш', icon: '🥩' },
-  { id: 'sausages', name: 'Колбасы', icon: '🌭' },
-  { id: 'steaks', name: 'Стейки', icon: '🔥' },
-  { id: 'offal', name: 'Субпродукты', icon: '🍖' },
+  { id: 'beef', name: 'Говядина', icon: beefIcon },
+  { id: 'lamb', name: 'Баранина', icon: lambIcon },
+  { id: 'chicken', name: 'Курица', icon: chickenIcon },
+  { id: 'minced', name: 'Полуфабрикаты', icon: mincedIcon },
+  { id: 'sausages', name: 'Колбасы', icon: sausagesIcon },
+  { id: 'steaks', name: 'Специи', icon: speciaIcon },
+  { id: 'offal', name: 'Другое', icon: offalIcon },
 ];
 
 export const products = [
