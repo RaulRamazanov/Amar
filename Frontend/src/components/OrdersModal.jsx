@@ -22,10 +22,10 @@ const OrdersModal = ({ onClose }) => {
       setError('Введите номер телефона');
       return;
     }
-
+    
     setLoading(true);
     setError('');
-
+    
     try {
       const userOrders = await fetchOrdersByPhone(phone);
       setOrders(userOrders);
@@ -39,12 +39,12 @@ const OrdersModal = ({ onClose }) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Дата не указана';
-
+  
   const date = new Date(dateString);
-
+  
   // Проверка на валидность даты
   if (isNaN(date.getTime())) return 'Неверная дата';
-
+  
   return date.toLocaleDateString('ru-RU', {
     day: 'numeric',
     month: 'long',
@@ -78,7 +78,7 @@ const formatDate = (dateString) => {
     <div className="orders-overlay" onClick={onClose}>
       <div className="orders-modal" onClick={(e) => e.stopPropagation()}>
         <button className="orders-close" onClick={onClose}>×</button>
-
+        
         <div className="orders-header">
           <h2>Мои заявки</h2>
         </div>
@@ -128,11 +128,11 @@ const formatDate = (dateString) => {
                           {getStatusText(order.status)}
                         </span>
                       </div>
-
+                      
                       <div className="order-date">
                         <img className='tab-icon-svg-small' src={calendarIcon} alt="" /> {formatDate(order.order_date)}
                       </div>
-
+                      
                       <div className="order-delivery">
                         <div className="delivery-address">
                           <img className='tab-icon-svg-small' src={pinIcon} alt="" /> {order.customer_address}
@@ -173,8 +173,8 @@ const formatDate = (dateString) => {
                                     </div>
                                 </div>
                                 <div className="item-progress">
-                                    <div
-                                    className="item-progress-bar"
+                                    <div 
+                                    className="item-progress-bar" 
                                     style={{ width: '100%' }}
                                     ></div>
                                 </div>
@@ -183,7 +183,7 @@ const formatDate = (dateString) => {
                             </div>
                         </div>
                         )}
-
+                      
                       <div className="order-comment">
                         {order.items[0].comment && (
                           <div className="delivery-comment">
@@ -191,7 +191,7 @@ const formatDate = (dateString) => {
                           </div>
                         )}
                       </div>
-
+                      
                       <div className="order-total">
                         <span>Итого:</span>
                         <span>{order.total_amount} ₽</span>

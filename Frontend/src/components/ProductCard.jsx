@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import cartIcon from '../assets/cart.svg';
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5000'; 
 
 const ProductCard = ({ product, addToCart }) => {
   const navigate = useNavigate();

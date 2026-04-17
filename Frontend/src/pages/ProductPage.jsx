@@ -26,7 +26,7 @@ const ProductPage = ({ addToCart }) => {
     setLoading(true);
     const data = await fetchProductById(id);
     console.log(data);
-
+    
     if (data) {
       setProduct(data);
       // Загружаем похожие товары из той же категории

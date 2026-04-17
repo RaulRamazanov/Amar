@@ -47,13 +47,13 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
     const params = new URLSearchParams(location.search);
     const categoryParam = params.get('category');
     const searchParam = params.get('search');
-
+    
     if (categoryParam && categories.some(c => c.id === categoryParam)) {
       setActiveCategory(categoryParam);
     } else {
       setActiveCategory('all');
     }
-
+    
     if (searchParam) {
       setCurrentSearchQuery(searchParam);
     } else if (!searchQuery) {
@@ -65,7 +65,7 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
   useEffect(() => {
     if (currentSearchQuery && currentSearchQuery.trim()) {
       const query = currentSearchQuery.toLowerCase().trim();
-      const filtered = products.filter(p =>
+      const filtered = products.filter(p => 
         p.name && p.name.toLowerCase().includes(query)
       );
       setFilteredProducts(filtered);
@@ -109,7 +109,7 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
   return (
     <div className="catalog-page">
       <h1 className="catalog-title">Каталог товаров</h1>
-
+      
       {/* Поиск на странице каталога */}
       <div className="catalog-search-section">
         <div className="catalog-search-wrapper">
@@ -121,8 +121,8 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
             className="catalog-search-input"
           />
           {currentSearchQuery && (
-            <button
-              className="clear-catalog-search-btn"
+            <button 
+              className="clear-catalog-search-btn" 
               onClick={handleClearSearch}
             >
               ✕
@@ -130,7 +130,7 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
           )}
         </div>
       </div>
-
+      
       <div className="category-tabs">
         <button
           className={`tab-btn ${activeCategory === 'all' ? 'active' : ''}`}
@@ -138,7 +138,7 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
         >
           <span className="tab-text">Все товары</span>
         </button>
-
+        
         {categories.map(cat => (
           <button
             key={cat.id}
@@ -179,9 +179,9 @@ const CatalogPage = ({ searchQuery = '', addToCart, onSearchClear }) => {
       ) : (
         <div className="products-grid">
           {filteredProducts.map(product => (
-            <ProductCard
-              key={product.id}
-              product={product}
+            <ProductCard 
+              key={product.id} 
+              product={product} 
               addToCart={addToCart}
             />
           ))}

@@ -506,11 +506,11 @@
   .admin-panel {
     padding: 0 15px;
   }
-
+  
   .admin-panel h1 {
     font-size: 28px;
   }
-
+  
   .products-section,
   .orders-section {
     padding: 18px;
@@ -522,39 +522,39 @@
     font-size: 24px;
     margin-bottom: 20px;
   }
-
+  
   .tabs button {
     padding: 8px 18px;
     font-size: 14px;
   }
-
+  
   .section-header {
     flex-direction: column;
     align-items: stretch;
   }
-
+  
   .search-input {
     width: 100%;
   }
-
+  
   .product-form {
     padding: 18px;
   }
-
+  
   .form-buttons button {
     flex: 1;
     padding: 10px 20px;
   }
-
+  
   .modal-content {
     width: 95%;
     margin: 10px;
   }
-
+  
   .modal-header h3 {
     font-size: 18px;
   }
-
+  
   .modal-body {
     padding: 16px;
   }
@@ -564,30 +564,30 @@
   .admin-panel h1 {
     font-size: 22px;
   }
-
+  
   .section-header h2 {
     font-size: 18px;
   }
-
+  
   .tabs {
     gap: 8px;
   }
-
+  
   .tabs button {
     padding: 6px 14px;
     font-size: 13px;
   }
-
+  
   .data-table th,
   .data-table td {
     padding: 10px 8px;
     font-size: 13px;
   }
-
+  
   .form-group label {
     font-size: 13px;
   }
-
+  
   .modal-items-table th,
   .modal-items-table td {
     font-size: 12px;

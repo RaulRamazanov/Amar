@@ -23,7 +23,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
   const handleCheckoutClose = (success) => {
     setIsCheckoutOpen(false);
     console.log(success);
-
+    
     onClose(success);
 
   };
@@ -66,7 +66,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
             <h2><img src={cartIcon} alt="Корзина" className="cart-icon-svg" style={{filter: "brightness(0) invert(1)"}} /> Корзина</h2>
             <button className="close-cart" onClick={() => handleCheckoutClose(false)}>×</button>
           </div>
-
+          
           <div className="cart-items">
             {cartItems.length === 0 ? (
               <div className="empty-cart">
@@ -83,7 +83,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                   <div className="cart-item-info">
                     <h4>{item.name}</h4>
                     <div className="cart-item-price">{item.price} ₽</div>
-
+                    
                     {/* Комментарий к товару */}
                     <div className="cart-item-comment">
                       {editingCommentId === item.id ? (
@@ -96,47 +96,47 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                             rows="2"
                             autoFocus
                           />
-
+                          
                           {/* Быстрые подсказки при редактировании */}
                           <div className="comment-quick-examples">
                             <span className="quick-label">⚡ Быстро добавить:</span>
                             <div className="quick-examples-grid">
-                              <button
+                              <button 
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("нарезка стейками 2см")}
                               >
                                 нарезка
                               </button>
-                              <button
+                              <button 
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("удалить лишний жир")}
                               >
                                 удалить жир
                               </button>
-                              <button
+                              <button 
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("отдельная упаковка")}
                               >
                                 отдельно
                               </button>
-                              <button
+                              <button 
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("порубить на кости")}
                               >
                                 на кости
                               </button>
-                              <button
+                              <button 
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("мелкий фарш")}
                               >
                                 мелкий фарш
                               </button>
-                              <button
+                              <button 
                                 type="button"
                                 className="quick-example-tag"
                                 onClick={() => addExampleComment("для шашлыка")}
@@ -145,15 +145,15 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                               </button>
                             </div>
                           </div>
-
+                          
                           <div className="comment-actions">
-                            <button
+                            <button 
                               className="comment-save-btn"
                               onClick={() => handleCommentSave(item.id)}
                             >
                               <img src={saveIcon} className='tab-icon-svg' alt="" /> Сохранить
                             </button>
-                            <button
+                            <button 
                               className="comment-cancel-btn"
                               onClick={handleCommentCancel}
                             >
@@ -172,22 +172,22 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
                         </div>
                       )}
                     </div>
-
+                    
                     <div className="cart-item-actions">
-                      <button
+                      <button 
                         className="quantity-btn"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       >
                         -
                       </button>
                       <span className="quantity">{item.quantity}</span>
-                      <button
+                      <button 
                         className="quantity-btn"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       >
                         +
                       </button>
-                      <button
+                      <button 
                         className="remove-item"
                         onClick={() => removeFromCart(item.id)}
                       >
@@ -199,7 +199,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
               ))
             )}
           </div>
-
+          
           {cartItems.length > 0 && (
             <div className="cart-footer">
               <div className="cart-total">
@@ -215,7 +215,7 @@ const Cart = ({ cartItems, updateQuantity, removeFromCart, updateComment, onClos
       </div>
 
       {isCheckoutOpen && (
-        <CheckoutModal
+        <CheckoutModal 
           onClose={handleCheckoutClose}
           cartItems={cartItems}
           totalPrice={totalPrice}

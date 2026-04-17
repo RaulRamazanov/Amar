@@ -1,214 +1,148 @@
-import React, { useState } from 'react';
-import { fetchOrdersByPhone } from '../services/api';
-import phoneIcon from "../assets/phone.svg"
-import pinIcon from "../assets/pin.svg"
-import calendarIcon from "../assets/calendar.svg"
-import numbersIcon from "../assets/numbers.svg"
-import moneyIcon from "../assets/money.svg"
-import commentIcon from "../assets/comment.svg"
-import cartIcon from "../assets/cart.svg"
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { fetchProducts } from '../services/api';
 import '../App.css';
 
-const OrdersModal = ({ onClose }) => {
-  const [step, setStep] = useState('phone'); // 'phone' или 'orders'
-  const [phone, setPhone] = useState('');
-  const [orders, setOrders] = useState([]);
+const SearchDropdown = ({ searchQuery, setSearchQuery, isInputFocused, onClose }) => {
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
-  const handlePhoneSubmit = async (e) => {
-    e.preventDefault();
-    if (!phone.trim()) {
-      setError('Введите номер телефона');
-      return;
+  // Загружаем все товары при фокусе на поиске
+  useEffect(() => {
+    if (isInputFocused && allProducts.length === 0) {
+      loadAllProducts();
     }
+  }, [isInputFocused]);
 
+  const loadAllProducts = async () => {
     setLoading(true);
-    setError('');
+    const products = await fetchProducts();
+    setAllProducts(products);
+    setLoading(false);
+  };
 
-    try {
-      const userOrders = await fetchOrdersByPhone(phone);
-      setOrders(userOrders);
-      setStep('orders');
-    } catch (err) {
-      setError(err.message || 'Ошибка при загрузке заказов');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    // Если инпут в фокусе и поисковый запрос пустой - показываем все товары
+    if (isInputFocused && !loading) {
+      if (!searchQuery || searchQuery.trim() === '') {
+        // Показываем первые 20 товаров
+        setFilteredProducts(allProducts.slice(0, 50));
+        setIsOpen(true);
+      } else if (searchQuery.trim().length > 0) {
+        // Фильтруем товары по поисковому запросу
+        const filtered = allProducts
+          .filter(product => 
+            product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .slice(0, 8);
+        setFilteredProducts(filtered);
+        setIsOpen(true);
+      }
+    } else {
+      setIsOpen(false);
+    }
+  }, [searchQuery, isInputFocused, allProducts, loading]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        if (onClose) onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+  const handleProductClick = (productId) => {
+    setSearchQuery('');
+    setIsOpen(false);
+    if (onClose) onClose();
+    navigate(`/product/${productId}`);
+  };
+
+  const handleViewAll = () => {
+    setSearchQuery('');
+    setIsOpen(false);
+    if (onClose) onClose();
+    if (searchQuery) {
+      navigate(`/catalog?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate('/catalog');
     }
   };
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'Дата не указана';
+  if (!isOpen) return null;
 
-  const date = new Date(dateString);
+  const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
+  const displayTitle = hasSearchQuery ? 'Результаты поиска' : 'Популярные товары';
 
-  // Проверка на валидность даты
-  if (isNaN(date.getTime())) return 'Неверная дата';
-
-  return date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-  const getStatusText = (status) => {
-    const statusMap = {
-      'pending': '⏳ В обработке',
-      'confirmed': '✅ Подтвержден',
-      'delivered': '🚚 Доставлен',
-      'cancelled': '❌ Отменен'
-    };
-    return statusMap[status] || status;
-  };
-
-  const getStatusClass = (status) => {
-    const classMap = {
-      'pending': 'status-pending',
-      'confirmed': 'status-confirmed',
-      'delivered': 'status-delivered',
-      'cancelled': 'status-cancelled'
-    };
-    return classMap[status] || 'status-pending';
-  };
+  if (loading) {
+    return (
+      <div className="search-dropdown" ref={dropdownRef}>
+        <div className="dropdown-header">
+          <span>Загрузка...</span>
+        </div>
+        <div className="loading-products">
+          <div className="loader"></div>
+          <p>Загрузка товаров...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="orders-overlay" onClick={onClose}>
-      <div className="orders-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="orders-close" onClick={onClose}>×</button>
-
-        <div className="orders-header">
-          <h2>Мои заявки</h2>
-        </div>
-
-        {step === 'phone' ? (
-          <form onSubmit={handlePhoneSubmit} className="phone-form">
-            <p className="phone-hint">
-              Введите номер телефона, который вы указывали при оформлении заказа
-            </p>
-            <div className="form-group">
-              <label>Номер телефона</label>
-              <input
-                type="tel"
-                placeholder="+7 999 123-45-67"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={error ? 'error' : ''}
-              />
-              {error && <span className="error-text">{error}</span>}
-            </div>
-            <button type="submit" className="submit-phone-btn" disabled={loading}>
-              {loading ? 'Загрузка...' : 'Показать мои заказы'}
-            </button>
-          </form>
-        ) : (
-          <div className="orders-list">
-            {loading ? (
-              <div className="loading-orders">Загрузка заказов...</div>
-            ) : orders.length === 0 ? (
-              <div className="no-orders">
-                <p>У вас пока нет заказов</p>
-                <button onClick={() => setStep('phone')} className="back-to-phone">
-                  ← Ввести другой номер
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="orders-count">
-                  Найдено заказов: {orders.length}
-                </div>
-                <div className="orders-cards">
-                  {orders.map(order => (
-                    <div key={order.id} className="order-card">
-                      <div className="order-header">
-                        <span className="order-number">Заказ №{order.id}</span>
-                        <span className={`order-status ${getStatusClass(order.status)}`}>
-                          {getStatusText(order.status)}
-                        </span>
-                      </div>
-
-                      <div className="order-date">
-                        <img className='tab-icon-svg-small' src={calendarIcon} alt="" /> {formatDate(order.order_date)}
-                      </div>
-
-                      <div className="order-delivery">
-                        <div className="delivery-address">
-                          <img className='tab-icon-svg-small' src={pinIcon} alt="" /> {order.customer_address}
-                        </div>
-                        <div className="delivery-phone">
-                          <img className='tab-icon-svg-small' src={phoneIcon} alt="" /> {order.customer_phone}
-                        </div>
-                      </div>
-
-                        {order.items && order.items.length > 0 && (
-                        <div className="order-items">
-                            <div className="items-title">
-                            <span><img className='tab-icon-svg-small' src={cartIcon} alt="" /> Состав заказа</span>
-                            <span className="items-count">{order.items.length} товара(ов)</span>
-                            </div>
-                            <div className="order-items-list">
-                            {order.items.map((item, idx) => (
-                                <div key={idx} className="order-item">
-                                <div className="item-main">
-                                    <div className="item-info">
-                                    <span className="item-name">{item.product_name || item.name}</span>
-                                    {item.comment && (
-                                        <div className="item-comment-badge">
-                                        <span className="comment-icon"><img className="tab-icon-svg-small" src={commentIcon} alt="" /></span>
-                                        <span className="comment-text">{item.comment}</span>
-                                        </div>
-                                    )}
-                                    </div>
-                                    <div className="item-pricing">
-                                    <div className="item-price-breakdown">
-                                        <span className="item-unit-price"> <img className='tab-icon-svg-small' src={moneyIcon} alt="" /> {item.price} ₽</span>
-                                        <span className="item-price-separator">×</span>
-                                        <span className="item-quantity"> <img className='tab-icon-svg-small' src={numbersIcon} alt="" /> {item.quantity} шт</span>
-                                    </div>
-                                    <div className="item-total-price">
-                                        {item.price * item.quantity} ₽
-                                    </div>
-                                    </div>
-                                </div>
-                                <div className="item-progress">
-                                    <div
-                                    className="item-progress-bar"
-                                    style={{ width: '100%' }}
-                                    ></div>
-                                </div>
-                                </div>
-                            ))}
-                            </div>
-                        </div>
-                        )}
-
-                      <div className="order-comment">
-                        {order.items[0].comment && (
-                          <div className="delivery-comment">
-                            <img className='tab-icon-svg-small' src={commentIcon} alt="" /> {order.items[0].comment}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="order-total">
-                        <span>Итого:</span>
-                        <span>{order.total_amount} ₽</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <button onClick={() => setStep('phone')} className="another-phone-btn">
-                  Проверить другой номер
-                </button>
-              </>
-            )}
-          </div>
-        )}
+    <div className="search-dropdown" ref={dropdownRef}>
+      <div className="dropdown-header">
+        <span>{displayTitle}</span>
+        <span className="results-count">
+          {hasSearchQuery ? `найдено: ${filteredProducts.length}` : `всего: ${filteredProducts.length}`}
+        </span>
       </div>
+      
+      {filteredProducts.length > 0 ? (
+        <>
+          <div className="dropdown-products">
+            {filteredProducts.map(product => (
+              <div 
+                key={product.id} 
+                className="search-product-card"
+                onClick={() => handleProductClick(product.id)}
+              >
+                <div className="search-product-image">
+                  <img src={product.image} alt={product.name} />
+                </div>
+                <div className="search-product-info">
+                  <h4 className="search-product-title">{product.name}</h4>
+                  <div className="search-product-price">{product.price} ₽</div>
+                  <div className="search-product-category">
+                    {product.category}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="dropdown-footer">
+            <button onClick={handleViewAll} className="view-all-results">
+              {hasSearchQuery ? `Показать все результаты (${filteredProducts.length})` : 'Перейти в каталог →'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="no-results">
+          <span className="no-results-icon">🔍</span>
+          <p>Ничего не найдено</p>
+          <p className="no-results-hint">Попробуйте изменить поисковый запрос</p>
+        </div>
+      )}
     </div>
   );
 };
 
-export default OrdersModal;
+export default SearchDropdown;

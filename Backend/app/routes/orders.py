@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, send_from_directory, session
 from app.models.models import db, Order, OrderItem, Product
 import uuid
 
@@ -31,12 +31,16 @@ def create_order():
           properties:
             customer_name:
               type: string
+              example: "Иван Петров"
             customer_phone:
               type: string
+              example: "+7 999 123-45-67"
             customer_address:
               type: string
+              example: "ул. Ленина, д. 10"
             comment:
               type: string
+              example: "Позвонить перед доставкой"
             items:
               type: array
               items:
@@ -44,10 +48,13 @@ def create_order():
                 properties:
                   product_id:
                     type: integer
+                    example: 1
                   quantity:
                     type: number
+                    example: 2.5
                   comment:
                     type: string
+                    example: "нарезать стейками"
     responses:
       201:
         description: Заказ оформлен
@@ -117,10 +124,24 @@ def create_order():
         'total': total
     }), 201
 
+@orders_bp.route('/orders', methods=['GET'])
+def get_orders():
+    """
+    Получить все заказы (админка)
+    ---
+    tags:
+      - Admin
+    responses:
+      200:
+        description: Список заказов
+    """
+    orders = Order.query.order_by(Order.order_date.desc()).all()
+    return jsonify([order.to_dict() for order in orders])
+
 @orders_bp.route('/orders/<string:order_id>', methods=['GET'])
 def get_order(order_id):
     """
-    Получить заказ по UUID (только свои)
+    Получить заказ по UUID
     ---
     tags:
       - Orders
@@ -129,24 +150,85 @@ def get_order(order_id):
         in: path
         type: string
         required: true
+        description: UUID заказа
     responses:
       200:
         description: Заказ найден
       403:
         description: Доступ запрещен
+      404:
+        description: Заказ не найден
     """
     order = Order.query.get_or_404(order_id)
 
-    session_id = get_session_id()
-    if order.session_id != session_id:
-        return jsonify({'error': 'Доступ запрещен'}), 403
+    # session_id = get_session_id()
+    # if order.session_id != session_id:
+    #     return jsonify({'error': 'Доступ запрещен'}), 403
 
     return jsonify(order.to_dict())
+
+@orders_bp.route('/orders/<string:order_id>', methods=['PUT'])
+def update_order(order_id):
+    """
+    Обновить заказ (админка)
+    ---
+    tags:
+      - Admin
+    parameters:
+      - name: order_id
+        in: path
+        type: string
+        required: true
+        description: UUID заказа
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            customer_name:
+              type: string
+            customer_phone:
+              type: string
+            customer_address:
+              type: string
+            comment:
+              type: string
+            status:
+              type: string
+              enum: [pending, confirmed, delivered, cancelled]
+    responses:
+      200:
+        description: Заказ обновлен
+    """
+    order = Order.query.get_or_404(order_id)
+    data = request.json
+
+    if 'customer_name' in data:
+        order.customer_name = data['customer_name']
+    if 'customer_phone' in data:
+        order.customer_phone = data['customer_phone']
+    if 'customer_address' in data:
+        order.customer_address = data['customer_address']
+    if 'comment' in data:
+        order.comment = data['comment']
+    if 'status' in data:
+        valid_statuses = ['pending', 'confirmed', 'delivered', 'cancelled']
+        if data['status'] not in valid_statuses:
+            return jsonify({'error': 'Неверный статус'}), 400
+        order.status = data['status']
+
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Заказ успешно обновлен',
+        'order': order.to_dict()
+    })
 
 @orders_bp.route('/orders/<string:order_id>', methods=['DELETE'])
 def delete_order(order_id):
     """
-    Удалить свой заказ
+    Удалить заказ
     ---
     tags:
       - Orders
@@ -158,6 +240,8 @@ def delete_order(order_id):
     responses:
       200:
         description: Заказ удален
+      403:
+        description: Доступ запрещен
     """
     order = Order.query.get_or_404(order_id)
 

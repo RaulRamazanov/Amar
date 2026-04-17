@@ -26,32 +26,32 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
 
   const validateForm = () => {
     const newErrors = {};
-
+    
     if (!formData.name.trim()) {
       newErrors.name = 'Введите ваше имя';
     }
-
+    
     if (!formData.phone.trim()) {
       newErrors.phone = 'Введите номер телефона';
     } else if (!/^[\d+\s\(\)-]{10,}$/.test(formData.phone)) {
       newErrors.phone = 'Введите корректный номер телефона';
     }
-
+    
     if (!formData.address.trim()) {
       newErrors.address = 'Введите адрес доставки';
     }
-
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!validateForm()) return;
-
+    
     setIsSubmitting(true);
-
+    
     // Подготавливаем данные для отправки
     const orderData = {
       customer: {
@@ -67,13 +67,13 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
       })),
       total: totalPrice
     };
-
+    
     try {
       const result = await createOrder(orderData);
-
+      
       // Показываем сообщение об успехе
       alert(`✅ Заказ №${result.order_id || 'успешно'} оформлен!\n\nСпасибо, ${formData.name}!\nДоставка по адресу: ${formData.address}\nНаш менеджер свяжется с вами в ближайшее время.`);
-
+      
       onClose(true); // Закрываем модальное окно и очищаем корзину
     } catch (error) {
       // Показываем сообщение об ошибке
@@ -87,7 +87,7 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
     <div className="checkout-overlay" onClick={() => onClose(false)}>
       <div className="checkout-modal" onClick={(e) => e.stopPropagation()}>
         <button className="checkout-close" onClick={() => onClose(false)}>×</button>
-
+        
         <div className="checkout-header">
           <h2>Оформление заказа</h2>
           <p className="checkout-subtitle">Заполните форму для оформления заказа</p>
@@ -165,8 +165,8 @@ const CheckoutModal = ({ onClose, cartItems, totalPrice }) => {
             </div>
           </div>
 
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             className="checkout-submit"
             disabled={isSubmitting}
           >

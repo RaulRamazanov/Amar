@@ -8,7 +8,7 @@ import '../App.css';
 const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
   const heroImage = mainImg;
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const HomePage = () => {
           <h2>Наши категории</h2>
           <Link to="/catalog" className="view-all-link">Весь каталог →</Link>
         </div>
-
+        
         {loading ? (
           <div className="loading-spinner">Загрузка категорий...</div>
         ) : (

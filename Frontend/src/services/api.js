@@ -1,8 +1,7 @@
 // src/services/api.js
-// Используем относительный путь, чтобы запросы шли через прокси Vite
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
-// Локальные категории (только для маппинга и запасного варианта)
+// Импортируем локальные данные категорий для сопоставления
 import { categories as localCategories } from '../data/products';
 
 // Получить список всех категорий с бэкенда
@@ -17,7 +16,7 @@ export const fetchCategories = async () => {
     // Сопоставляем данные с бэкенда с локальными данными
     const mappedCategories = backendCategories
       .map(catId => localCategories.find(localCat => localCat.id === catId))
-      .filter(cat => cat !== undefined);
+      .filter(cat => cat !== undefined); // Убираем undefined, если ID не найден
     
     return mappedCategories;
   } catch (error) {
@@ -39,7 +38,6 @@ export const fetchProducts = async (categoryId = null) => {
     return await response.json();
   } catch (error) {
     console.error('Error fetching products:', error);
-    // Возвращаем пустой массив, чтобы не показывать статику
     return [];
   }
 };
@@ -58,6 +56,7 @@ export const fetchProductById = async (productId) => {
 
 export const createOrder = async (orderData) => {
   try {
+    // Преобразуем данные из формы в нужный формат
     const formattedOrder = {
       customer_name: orderData.customer.name,
       customer_phone: orderData.customer.phone,
@@ -87,5 +86,51 @@ export const createOrder = async (orderData) => {
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;
+  }
+};
+
+export const fetchOrdersByPhone = async (phone) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/lookup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ customer_phone: phone }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Ошибка загрузки заказов');
+    }
+    
+    const orders = await response.json();
+    
+    // Если нужно получить полные данные заказов (с товарами), 
+    // делаем дополнительный запрос для каждого заказа
+    const fullOrders = await Promise.all(
+      orders.map(async (order) => {
+        const orderDetails = await fetchOrderById(order.id);
+        return orderDetails || order;
+      })
+    );
+    console.log(fullOrders);
+    
+    return fullOrders;
+  } catch (error) {
+    console.error('Error fetching orders by phone:', error);
+    throw error;
+  }
+};
+
+// Получить заказ по ID (если нужны детали)
+export const fetchOrderById = async (orderId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+    if (!response.ok) throw new Error('Ошибка загрузки заказа');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    return null;
   }
 };

@@ -41,7 +41,7 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
     setLocalSearchQuery('');
     setSearchQuery('');
     setIsSearchFocused(false);
-
+    
     const url = new URL(window.location.href);
     if (url.searchParams.has('search')) {
       url.searchParams.delete('search');
@@ -57,7 +57,7 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
             <span className="logo-icon">🥩</span>
             <span className="logo-text">MeatMarket</span>
           </Link>
-
+          
           <div className="search-wrapper">
             <form onSubmit={handleSearch} className="search-form">
                 <input
@@ -69,8 +69,8 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
                   className="search-input"
                 />
                 {(searchQuery || localSearchQuery) && (
-                  <button
-                    type="button"
+                  <button 
+                    type="button" 
                     className="clear-search-btn"
                     onClick={handleClearSearch}
                   >
@@ -78,8 +78,8 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
                   </button>
                 )}
             </form>
-
-            <SearchDropdown
+            
+            <SearchDropdown 
               searchQuery={searchQuery || localSearchQuery}
               setSearchQuery={(value) => {
                 setLocalSearchQuery(value);
@@ -92,14 +92,14 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
 
           <div className="header-actions">
             {/* Кнопка "Мои заявки" */}
-            <button
+            <button 
               className="orders-btn"
               style={{color: "#222"}}
               onClick={() => setIsOrdersModalOpen(true)}
             >
               <img src={orderIcon} alt="Корзина" className="tab-icon-svg" /> Мои заявки
             </button>
-
+            
             {/* Иконка корзины */}
             <div className="cart-icon" onClick={onCartOpen}>
               <img src={cartIcon} alt="Корзина" className="cart-icon-svg" />
