@@ -1,19 +1,21 @@
 // src/components/Footer.js
 import React from 'react';
 import '../App.css';
+import phoneIcon from "../assets/phone.svg"
+import mailIcon from "../assets/mail.svg"
 
 const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-section">
-          <h4>MeatMarket</h4>
+          <h4>Мясо у Адама</h4>
           <p>Свежее мясо высшего качества</p>
         </div>
         <div className="footer-section">
           <h4>Контакты</h4>
-          <p>📞 +7 (999) 123-45-67</p>
-          <p>✉️ info@meatmarket.ru</p>
+          <p> <img style={{filter: "brightness(0) invert(1)"}} className='tab-icon-svg' src={phoneIcon} alt="" /> +7 (925) 057-43-13</p>
+          <p><img style={{filter: "brightness(0) invert(1)"}} className='tab-icon-svg' src={mailIcon} alt="" /> belxoroev777@mail.ru</p>
         </div>
         <div className="footer-section">
           <h4>Режим работы</h4>

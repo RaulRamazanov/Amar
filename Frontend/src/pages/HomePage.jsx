@@ -28,8 +28,9 @@ const HomePage = () => {
         <img src={heroImage} alt="Fresh meat" className="hero-image" />
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <h1>Свежее мясо от проверенных фермеров</h1>
-          <p>Натуральные продукты высшего качества с доставкой на дом</p>
+          <div className="halal-badge">Халяль</div>
+          <h1>Свежее мясо Халяль от проверенных фермеров</h1>
+          <p>Натуральные продукты высшего качества с доставкой на дом. <strong>Вся продукция сертифицирована Халяль</strong></p>
           <Link to="/catalog" className="hero-btn">В каталог →</Link>
         </div>
       </section>

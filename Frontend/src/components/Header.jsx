@@ -54,8 +54,7 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
       <header className="header">
         <div className="header-container">
           <Link to="/" className="logo">
-            <span className="logo-icon">🥩</span>
-            <span className="logo-text">MeatMarket</span>
+            <span className="logo-text">Мясо у Адама</span>
           </Link>
           
           <div className="search-wrapper">
@@ -97,7 +96,7 @@ const Header = ({ searchQuery, setSearchQuery, cartCount, onCartOpen }) => {
               style={{color: "#222"}}
               onClick={() => setIsOrdersModalOpen(true)}
             >
-              <img src={orderIcon} alt="Корзина" className="tab-icon-svg" /> Мои заявки
+              <img src={orderIcon} alt="Корзина" className="tab-icon-svg" /> <span>Мои заявки</span>
             </button>
             
             {/* Иконка корзины */}

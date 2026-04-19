@@ -87,24 +87,116 @@ body {
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
 }
 
 .logo {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #ffd4c0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+  position: relative;
+  padding: 5px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Декоративная линия под логотипом */
+.logo-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #ff8c42, #c2410c);
+  transition: width 0.3s ease;
+}
+
+.logo:hover .logo-text::after {
+  width: 100%;
+}
+
+/* Альтернативный вариант - с иконкой */
+.logo-with-icon {
   display: flex;
   align-items: center;
   gap: 8px;
-  text-decoration: none;
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  flex-shrink: 0;
 }
 
-.logo-icon { font-size: 32px; }
-.logo-text { display: inline-block; }
+.logo-icon-custom {
+  font-size: 28px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-icon-custom {
+  transform: scale(1.1);
+}
+
+.logo-text-custom {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 1px;
+}
+
+/* Вариант с рамкой */
+.logo-bordered {
+  padding: 6px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 40px;
+  transition: all 0.3s ease;
+}
+
+.logo-bordered:hover {
+  border-color: #ff8c42;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logo-bordered .logo-text {
+  font-size: 20px;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .logo-icon-custom {
+    font-size: 22px;
+  }
+  
+  .logo-text-custom {
+    font-size: 18px;
+  }
+  
+  .logo-bordered {
+    padding: 4px 12px;
+  }
+  
+  .logo-bordered .logo-text {
+    font-size: 16px;
+  }
+}
+
+/* Эффект при наведении */
+.logo:hover {
+  transform: translateY(-1px);
+}
 
 /* Search */
 .search-wrapper {
@@ -473,7 +565,45 @@ body {
   background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(139,44,29,0.3) 100%);
   z-index: 2;
 }
+.halal-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #c5723e, #ea5c03);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  animation: pulse 4s infinite;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.5);
+  }
+}
 
+.hero-content .highlight {
+  color: #ff8c42;
+  position: relative;
+  display: inline-block;
+}
+
+.hero-content .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #ff8c42;
+  border-radius: 2px;
+}
 .hero-content {
   position: relative;
   z-index: 3;
@@ -1811,10 +1941,10 @@ body {
     padding: 15px 20px 20px;
   }
   
-  .order-header {
+  /* .order-header {
     flex-direction: column;
     align-items: flex-start;
-  }
+  } */
   
   .orders-btn {
     font-size: 13px;
@@ -1825,10 +1955,10 @@ body {
     display: none;
   }
   
-  .orders-btn::before {
+  /* .orders-btn::before {
     content: "📋";
     font-size: 20px;
-  }
+  } */
 }
 
 /* Адаптивность */
@@ -2659,6 +2789,36 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 40px;
 }
+/* Стили для секции с названием компании */
+.footer-section:nth-child(1) h4 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #ffd4c0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+
+/* Декоративная линия под названием */
+.footer-section:nth-child(1) h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #c2410c, #ff8c42);
+  transition: width 0.3s ease;
+}
+
+.footer-section:hover h4::after {
+  width: 100%;
+}
 
 .footer-section h4 {
   color: white;
@@ -2667,6 +2827,8 @@ body {
 }
 
 .footer-section p {
+  display: flex;
+  gap: 0 5px;
   margin: 8px 0;
   line-height: 1.5;
 }
@@ -3277,16 +3439,16 @@ body {
 /* Мобильные устройства */
 @media (max-width: 768px) {
   /* Header */
-  .header-container {
+  /* .header-container {
     flex-wrap: wrap;
     gap: 12px;
     padding: 0 15px;
-  }
+  } */
   
-  .logo {
+  /* .logo {
     font-size: 20px;
     flex: 1;
-  }
+  } */
   
   .logo-icon { font-size: 28px; }
   .logo-text { font-size: 20px; }
@@ -3307,7 +3469,7 @@ body {
   
   .header-actions { gap: 15px; }
   .icon-btn,
-  .cart-icon { font-size: 22px; }
+  /* .cart-icon { font-size: 22px; } */
   
   /* Search Dropdown Mobile */
   .search-dropdown {
@@ -3371,11 +3533,11 @@ body {
   .category-name { font-size: 18px; }
   
   /* Sections */
-  .section-header {
+  /* .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-  }
+  } */
   
   .section-header h2,
   .catalog-title {
@@ -3492,6 +3654,11 @@ body {
     text-align: center;
     padding: 30px 20px;
   }
+  .footer-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   
   .footer-section h4 { font-size: 16px; }
   .footer-section p { font-size: 14px; }
@@ -3505,7 +3672,7 @@ body {
 @media (max-width: 480px) {
   .main-content { padding: 10px; }
   
-  .logo-text { display: none; }
+  /* .logo-text { display: none; } */
   .logo-icon { font-size: 32px; }
   
   .categories-grid,
@@ -3643,4 +3810,289 @@ body {
   .hero-btn:active,
   .tab-btn:active,
   .view-all-results:active { transform: scale(0.96); }
+}
+
+
+/* ==================== HEADER АДАПТИВНОСТЬ ==================== */
+
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+
+/* Планшеты и маленькие ноутбуки (до 1024px) */
+@media (max-width: 1024px) {
+  .header-container {
+    gap: 15px;
+  }
+  
+  .logo-text {
+    font-size: 20px;
+  }
+  
+  .search-wrapper {
+    max-width: 400px;
+  }
+  
+  .orders-btn {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+  
+  .orders-btn span {
+    display: none;
+  }
+  
+  .orders-btn .tab-icon-svg {
+    margin: 0;
+  }
+}
+
+/* Планшеты (768px - 1024px) */
+@media (max-width: 900px) {
+  .header-container {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .logo {
+    order: 1;
+  }
+  
+  .header-actions {
+    order: 2;
+  }
+  
+  .search-wrapper {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: 100%;
+    width: 100%;
+    margin-top: 5px;
+  }
+  
+  .search-input {
+    padding: 10px 40px 10px 16px;
+    font-size: 14px;
+  }
+  
+  .orders-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  
+  .cart-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  /* .cart-icon-svg {
+    width: 18px;
+    height: 18px;
+  } */
+}
+
+/* Мобильные устройства (до 768px) */
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 0;
+  }
+  
+  .header-container {
+    padding: 0 15px;
+    gap: 10px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .search-input {
+    padding: 8px 35px 8px 14px;
+    font-size: 13px;
+  }
+  
+  .clear-search-btn {
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+  }
+  
+  .orders-btn {
+    font-size: 20px;
+    padding: 4px 8px;
+  }
+  
+  .tab-icon-svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .cart-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .cart-icon-svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .cart-count {
+    font-size: 9px;
+    min-width: 15px;
+    height: 15px;
+    top: -4px;
+    right: -4px;
+  }
+}
+
+/* Очень маленькие мобильные устройства (до 480px) */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 0;
+  }
+  
+  .header-container {
+    padding: 0 12px;
+  }
+  
+  .logo-text {
+    font-size: 16px;
+  }
+  
+  .search-input {
+    padding: 8px 30px 8px 12px;
+    font-size: 12px;
+  }
+  
+  .clear-search-btn {
+    right: 8px;
+    font-size: 12px;
+  }
+  
+  .orders-btn {
+    padding: 3px 6px;
+  }
+  
+  .tab-icon-svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .cart-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .cart-icon-svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .cart-count {
+    font-size: 8px;
+    min-width: 13px;
+    height: 13px;
+    top: -5px;
+    right: -5px;
+  }
+}
+
+/* Десктопная версия с большими экранами (1400px+) */
+@media (min-width: 1400px) {
+  .header-container {
+    max-width: 1400px;
+  }
+  
+  .logo-text {
+    font-size: 28px;
+  }
+  
+  .search-wrapper {
+    max-width: 550px;
+  }
+  
+  .search-input {
+    padding: 14px 45px 14px 18px;
+    font-size: 16px;
+  }
+  
+  .orders-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+  }
+  
+  .cart-icon {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .cart-icon-svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+/* Очень маленькие мобильные устройства (до 550px) */
+@media (max-width: 550px) {
+  .orders-btn span {
+    display: none;
+  }
+  
+  /* .orders-btn {
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  } */
+     .cart-icon-svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .tab-icon-svg {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+}
+
+/* Альтернативный вариант для планшетов в альбомной ориентации */
+@media (min-width: 769px) and (max-width: 900px) and (orientation: landscape) {
+  .search-wrapper {
+    max-width: 350px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .orders-btn span {
+    display: inline;
+    font-size: 12px;
+  }
+}
+
+/* Улучшения для тач-устройств */
+@media (hover: none) {
+  .orders-btn:active {
+    transform: scale(0.98);
+  }
+  
+  .cart-icon:active {
+    transform: scale(0.95);
+  }
+  
+  .clear-search-btn:active {
+    background: rgba(194, 65, 12, 0.2);
+  }
+}
+
+@media (max-width: 290px) {
+  
+  .logo-text {
+    font-size: 15px;
+  }
 }
