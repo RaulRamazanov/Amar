@@ -1,5 +1,5 @@
 // src/services/api.js
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
+const API_BASE_URL = '/api';
 
 // Импортируем локальные данные категорий для сопоставления
 import { categories as localCategories } from '../data/products';
@@ -9,15 +9,15 @@ export const fetchCategories = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/categories`);
     if (!response.ok) throw new Error('Ошибка загрузки категорий');
-    
+
     const backendCategories = await response.json();
     // backendCategories приходит в формате: ["beef", "lamb", "chicken", ...]
-    
+
     // Сопоставляем данные с бэкенда с локальными данными
     const mappedCategories = backendCategories
       .map(catId => localCategories.find(localCat => localCat.id === catId))
       .filter(cat => cat !== undefined); // Убираем undefined, если ID не найден
-    
+
     return mappedCategories;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -68,7 +68,7 @@ export const createOrder = async (orderData) => {
         comment: item.comment || ''
       }))
     };
-    
+
     const response = await fetch(`${API_BASE_URL}/orders`, {
       method: 'POST',
       headers: {
@@ -76,12 +76,12 @@ export const createOrder = async (orderData) => {
       },
       body: JSON.stringify(formattedOrder),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Ошибка оформления заказа');
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error creating order:', error);
@@ -98,15 +98,15 @@ export const fetchOrdersByPhone = async (phone) => {
       },
       body: JSON.stringify({ customer_phone: phone }),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || 'Ошибка загрузки заказов');
     }
-    
+
     const orders = await response.json();
-    
-    // Если нужно получить полные данные заказов (с товарами), 
+
+    // Если нужно получить полные данные заказов (с товарами),
     // делаем дополнительный запрос для каждого заказа
     const fullOrders = await Promise.all(
       orders.map(async (order) => {
@@ -115,7 +115,7 @@ export const fetchOrdersByPhone = async (phone) => {
       })
     );
     console.log(fullOrders);
-    
+
     return fullOrders;
   } catch (error) {
     console.error('Error fetching orders by phone:', error);

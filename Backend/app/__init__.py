@@ -8,22 +8,20 @@ import time
 import os
 
 def create_app():
-    app = Flask(__name__,static_folder='uploads',  # папка со статикой
-                static_url_path='/static'   )
+    app = Flask(__name__)
     app.config.from_object(Config)
 
-    CORS(app, 
-        origins=[
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "http://127.0.0.1:3000",
-            "http://localhost:8080",
-            "https://yourdomain.com"
-        ],
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "Authorization"],
-        supports_credentials=True,
-        max_age=3600)
+    # Настройки для загрузки файлов
+    app.config['UPLOAD_FOLDER'] = 'uploads'
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+    # CORS настройки
+    CORS(app,
+         resources={r"/*": {"origins": "*"}},
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+         supports_credentials=True,
+         max_age=3600)
 
     db.init_app(app)
     app.secret_key = Config.SECRET_KEY
@@ -32,23 +30,39 @@ def create_app():
     register_routes(app)
 
     # ============================================
-    # МАРШРУТ ДЛЯ СТАТИЧЕСКИХ ФАЙЛОВ (ФОТО)
+    # МАРШРУТ ДЛЯ СТАТИЧЕСКИХ ФАЙЛОВ (ФОТО) - ИСПРАВЛЕННЫЙ ПУТЬ
     # ============================================
 
     @app.route('/uploads/products/<path:filename>')
     def uploaded_file(filename):
-        # Абсолютный путь
-        base_dir = r'C:\vs code\Amar_beef\Amar\Backend'
-        full_path = os.path.join(base_dir, 'uploads/products', filename)
-        
-        print(f"Проверяем: {full_path}")
-        
-        if os.path.exists(full_path):
-            print("Файл найден!")
-            return send_file(full_path, mimetype='image/jpeg')
+        # ПРАВИЛЬНЫЙ путь для Docker: /app/uploads/products/
+        # current_dir = /app/app - ЭТО ПРОБЛЕМА!
+        # Нужно подняться на уровень выше
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        upload_dir = os.path.join(base_dir, 'uploads', 'products')
+        file_path = os.path.join(upload_dir, filename)
+
+        print(f"[DEBUG] Base dir: {base_dir}")
+        print(f"[DEBUG] Looking for file: {filename}")
+        print(f"[DEBUG] Upload directory: {upload_dir}")
+        print(f"[DEBUG] Full path: {file_path}")
+        print(f"[DEBUG] File exists: {os.path.exists(file_path)}")
+
+        if os.path.exists(file_path):
+            print(f"[DEBUG] File found! Sending: {file_path}")
+            ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+            mime_types = {
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png',
+                'gif': 'image/gif',
+                'webp': 'image/webp'
+            }
+            mimetype = mime_types.get(ext, 'image/jpeg')
+            return send_file(file_path, mimetype=mimetype)
         else:
-            print("Файл НЕ найден!")
-            return "Not found", 404
+            print(f"[ERROR] File NOT found: {file_path}")
+            return {"error": "File not found"}, 404
 
     # Конфигурация Swagger
     swagger_config = {

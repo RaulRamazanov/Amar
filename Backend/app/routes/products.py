@@ -61,17 +61,18 @@ def allowed_file(filename):
 def save_image(file):
     """Сохранить изображение и вернуть путь"""
     if file and allowed_file(file.filename):
-        # Безопасное имя файла
         original_filename = secure_filename(file.filename)
-        # Генерируем уникальное имя
         ext = original_filename.rsplit('.', 1)[1].lower()
         unique_filename = f"{uuid.uuid4().hex}.{ext}"
-        # Полный путь для сохранения
+
+        # Создаем директорию если её нет
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
         filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
-        # Сохраняем файл
         file.save(filepath)
-        # Возвращаем URL для доступа
-        return f"/{UPLOAD_FOLDER}/{unique_filename}"
+
+        # Возвращаем URL для доступа (ВАЖНО: начинается с /uploads/)
+        return f"/uploads/products/{unique_filename}"
     return None
 
 @products_bp.route('/products', methods=['POST'])
